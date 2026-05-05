@@ -8,8 +8,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -29,8 +28,8 @@ public class Usuario {
     private String email;
 
     // La contraseña siempre se guarda hasheada, nunca en texto plano
-    @Column(name = "password_hash", nullable = false)
-    private String passwordHash;
+    @Column(name = "password", nullable = false)
+    private String password;
 
     // Guardamos el enum como texto en la BD ("ADMIN", "DOCENTE", "DIRECTIVO")
     @Enumerated(EnumType.STRING)
@@ -49,7 +48,5 @@ public class Usuario {
     public void prePersist() {
         this.createdAt = LocalDateTime.now();
     }
-
-
 
 }

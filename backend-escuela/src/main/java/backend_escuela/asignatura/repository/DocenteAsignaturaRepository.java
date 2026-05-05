@@ -21,6 +21,9 @@ public interface DocenteAsignaturaRepository extends JpaRepository<DocenteAsigna
             Long docenteId, Long asignaturaId, Long seccionId
     );
 
+    // Verificar si un docente dicta al menos una asignatura en esa sección
+    boolean existsByDocenteIdAndSeccionId(Long docenteId, Long seccionId);
+
     // Eliminar una asignación específica
     void deleteByDocenteIdAndAsignaturaIdAndSeccionId(
             Long docenteId, Long asignaturaId, Long seccionId

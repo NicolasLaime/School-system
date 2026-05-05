@@ -10,7 +10,7 @@ import javax.validation.constraints.NotBlank;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class LoginRequestDto {
+public class LoginRequestDTO {
 
 
     @NotBlank(message = "El email es obligatorio")
