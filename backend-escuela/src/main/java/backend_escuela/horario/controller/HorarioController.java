@@ -24,12 +24,12 @@ public class HorarioController {
     public ResponseEntity<ApiResponse<HorarioResponseDto>> crear(@Valid @RequestBody HorarioRequestDto request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok("Horario creado", horarioService.crear(request)));
     }
+
+
     @GetMapping
     public ResponseEntity<ApiResponse<List<HorarioResponseDto>>> listarTodos() {
         return ResponseEntity.ok(ApiResponse.ok("Horarios", horarioService.listarTodos()));
     }
-
-
 
 
 

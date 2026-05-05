@@ -47,6 +47,9 @@ public class HorarioService {
     public List<HorarioResponseDto> listarTodos() {
         return horarioRepository.findAll().stream().map(this::toResponse).collect(Collectors.toList());
     }
+
+
+
     private HorarioResponseDto toResponse(Horario h) {
         return HorarioResponseDto.builder()
                 .id(h.getId()).diaSemana(h.getDiaSemana()).horaInicio(h.getHoraInicio()).horaFin(h.getHoraFin())
