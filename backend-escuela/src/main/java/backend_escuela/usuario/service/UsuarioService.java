@@ -21,7 +21,19 @@ public class UsuarioService {
 
     // ─── Crear ───────────────────────────────────────────────────────────
     @Transactional
-    public UsuarioResponseDTO crear(UsuarioRequestDTO request) {
+    public UsuarioResponseDTO crear(UsuarioRequestDTO request, Long creadorId) {
+
+
+        if (request.getRol() == RolNombre.DOCENTE) {
+            if (creadorId == null) {
+                throw ApiException.forbidden("Se requiere un creadorId en el Header (X-Creador-Id) para crear un DOCENTE");
+            }
+            Usuario creador = obtenerOFallar(creadorId);
+            if (creador.getRol() != RolNombre.DIRECTIVO) {
+                throw ApiException.forbidden("Solo un DIRECTIVO puede crear DOCENTES");
+            }
+        }
+
 
         if (usuarioRepository.existsByEmail(request.getEmail())) {
             throw ApiException.conflict(
@@ -116,6 +128,23 @@ public class UsuarioService {
     }
 
 
+    @Transactional
+    public UsuarioResponseDTO login(backend_escuela.auth.dto.LoginRequestDto request) {
+
+        // 1. Buscamos el usuario por su correo
+        Usuario usuario = usuarioRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> ApiException.unauthorized("Credenciales incorrectas (Email no encontrado)"));
+        // 2. Verificamos que esté activo
+        if (!usuario.getActivo()) {
+            throw ApiException.unauthorized("El usuario está desactivado");
+        }
+        // 3. Comparamos la contraseña (Ojo: esto es texto plano temporalmente)
+        if (!usuario.getPasswordHash().equals(request.getPassword())) {
+            throw ApiException.unauthorized("Credenciales incorrectas (Contraseña inválida)");
+        }
+        // 4. Si todo es correcto, devolvemos sus datos
+        return toResponse(usuario);
+    }
 
 
 

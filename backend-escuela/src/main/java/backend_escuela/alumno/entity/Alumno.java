@@ -27,6 +27,15 @@ public class Alumno {
     @Column(nullable = false, length = 100)
     private String apellido;
 
+    @Column(length = 20)
+    private String telefono;
+
+    @Column(length = 255)
+    private String direccion;
+
+    @Column(length = 50)
+    private String documento;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "seccion_id", nullable = false)
     private Seccion seccion;

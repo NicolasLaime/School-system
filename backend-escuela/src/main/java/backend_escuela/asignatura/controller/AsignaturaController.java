@@ -106,6 +106,22 @@ public class AsignaturaController {
         );
     }
 
+
+
+    @GetMapping("/codigo/{codigo}")
+    public ResponseEntity<ApiResponse<AsignaturaResponseDto>> buscarPorCodigo(@PathVariable String codigo) {
+        return ResponseEntity.ok(ApiResponse.ok("Asignatura encontrada", asignaturaService.buscarPorCodigo(codigo)));
+    }
+    @GetMapping("/con-docentes")
+    public ResponseEntity<ApiResponse<List<AsignaturaResponseDto>>> listarConDocenteAsociado() {
+        return ResponseEntity.ok(ApiResponse.ok("Asignaturas obtenidas", asignaturaService.listarConDocenteAsociado()));
+    }
+
+
+
+
+
+
     // DELETE /api/asignaturas/asignar-docente
     @DeleteMapping("/asignar-docente")
     public ResponseEntity<ApiResponse<Void>> eliminarAsignacion(

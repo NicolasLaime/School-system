@@ -165,6 +165,26 @@ public class AsignaturaService {
         );
     }
 
+
+
+    @Transactional
+    public AsignaturaResponseDto buscarPorCodigo(String codigo) {
+        Asignatura asignatura = asignaturaRepository.findByCodigo(codigo)
+                .orElseThrow(() -> ApiException.notFound("Asignatura con código " + codigo + " no encontrada"));
+        return toResponse(asignatura);
+    }
+    @Transactional
+    public List<AsignaturaResponseDto> listarConDocenteAsociado() {
+        return asignaturaRepository.findConDocenteAsociado()
+                .stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+
+
+
+
+
     // ─── Helpers ──────────────────────────────────────────────────────────
 
     public Asignatura obtenerOFallar(Long id) {
@@ -199,6 +219,7 @@ public class AsignaturaService {
                 .gradoNombre(das.getSeccion().getGrado().getNombre())
                 .build();
     }
+
 
 
 

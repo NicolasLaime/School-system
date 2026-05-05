@@ -37,6 +37,9 @@ public class AlumnoService {
                 .codigo(request.getCodigo())
                 .nombre(request.getNombre())
                 .apellido(request.getApellido())
+                .telefono(request.getTelefono())
+                .direccion(request.getDireccion())
+                .documento(request.getDocumento())
                 .seccion(seccion)
                 .activo(true)
                 .build();
@@ -106,6 +109,9 @@ public class AlumnoService {
         alumno.setCodigo(request.getCodigo());
         alumno.setNombre(request.getNombre());
         alumno.setApellido(request.getApellido());
+        alumno.setTelefono(request.getTelefono());
+        alumno.setDireccion(request.getDireccion());
+        alumno.setDocumento(request.getDocumento());
         alumno.setSeccion(seccion);
 
         return toResponse(alumnoRepository.save(alumno));
@@ -134,6 +140,9 @@ public class AlumnoService {
                 .codigo(a.getCodigo())
                 .nombre(a.getNombre())
                 .apellido(a.getApellido())
+                .telefono(a.getTelefono())
+                .direccion(a.getDireccion())
+                .documento(a.getDocumento())
                 .activo(a.getActivo())
                 .seccionId(a.getSeccion().getId())
                 .seccionNombre(a.getSeccion().getNombre())

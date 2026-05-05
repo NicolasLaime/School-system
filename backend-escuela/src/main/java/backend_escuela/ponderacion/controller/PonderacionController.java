@@ -14,7 +14,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping
+@RequestMapping("/api/ponderaciones")
 @RequiredArgsConstructor
 public class PonderacionController {
 
