@@ -12,13 +12,25 @@ import { useState } from "react"
 import { toast } from "sonner"
 import { loginSlice } from "@/redux/features/userSlice"
 import { ApiError } from "../../types/RootState"
+import { jwtDecode } from "jwt-decode";
+
+
+interface JwtPayload {
+  sub: string;      // email
+  role: string;     // "ROLE_DIRECTIVO"
+  iss: string;
+  iat: number;
+  exp: number;
+  jti: string;
+  nbf: number;
+}
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
 
-    const router = useRouter();
+  const router = useRouter();
   const dispatch = useDispatch();
   const [login, { isLoading }] = useLoginMutation();
   const [errorMessage, setErrorMessage] = useState("");
@@ -29,42 +41,35 @@ export function LoginForm({
   });
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const { email, password } = loginData;
-    console.log("Login data:", email, password);
-    try {
-      if (email && password) {
-        const response = await login({ email, password }).unwrap(); // <-- importante
-        console.log("Response login:", response);
-        const user = response.data;
-        const accessToken = response.accessToken;
+  e.preventDefault();
+  const { email, password } = loginData;
+  try {
+    if (email && password) {
+      const response = await login({ email, password }).unwrap();
+      const token = response.token; // <-- ahora solo viene el token
 
-     
-        
-        if (user) {
-          dispatch(loginSlice({ userLogin: user, accessToken }));
-          toast("Bienvenido " + user.nombre, {
-            position: "top-center",
-            action: {
-              label: "Ir al dashboard",
-              onClick: () => router.push("/dashboard"),
-            },
-          });
-          setErrorMessage("");
-        } else {
-          setErrorMessage("No se pudo obtener la información del usuario");
-        }
-      } else {
-        setErrorMessage("Por favor, rellene todos los campos");
-      }
-    } catch (err) {
-      // el catch ahora sí se ejecutará
-      const errorMsg =
-        (err as ApiError)?.data?.message ||
-        (err instanceof Error ? err.message : "Error inesperado");
-      setErrorMessage(errorMsg);
+      // Decodificás el token para obtener los datos del usuario
+      const decoded = jwtDecode<JwtPayload>(token);
+
+      dispatch(loginSlice({ 
+        userLogin: {
+          email: decoded.sub,
+          role: decoded.role,
+        }, 
+        accessToken: token 
+      }));
+
+      toast("Bienvenido", { position: "top-center" });
+      router.push("/dashboard");
+      setErrorMessage("");
     }
-  };
+  } catch (err) {
+    const errorMsg =
+      (err as ApiError)?.data?.message ||
+      (err instanceof Error ? err.message : "Error inesperado");
+    setErrorMessage(errorMsg);
+  }
+};
 
 
 
