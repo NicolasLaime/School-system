@@ -27,7 +27,7 @@ export const asistenciasApi = createApi({
   endpoints: (builder) => ({
     getAsistenciasDocente: builder.query<AsistenciasDocenteResponse, { fecha: string }>({
       query: ({ fecha }) => ({
-        url: "/asistencias/docente",
+        url: "/api/asistencias/docente",
         method: "GET",
         params: { fecha },
       }),
@@ -36,7 +36,7 @@ export const asistenciasApi = createApi({
 
     createAsistenciaDocente: builder.mutation<AsistenciaResponse, CreateAsistenciaDocenteDto>({
       query: (data) => ({
-        url: "/asistencias/docente",
+        url: "/api/asistencias/docente",
         method: "POST",
         body: data,
       }),
@@ -47,7 +47,7 @@ export const asistenciasApi = createApi({
       query: (data) => {
         console.log("data asistencia alumno: ", data);
         return {
-          url: "/asistencias/alumno",
+          url: "/api/asistencias/alumno",
           method: "POST",
           body: data,
         }
@@ -57,7 +57,7 @@ export const asistenciasApi = createApi({
 
     getAsistenciasAlumnoBySeccion: builder.query<AsistenciasAlumnoResponse, { seccionId: number | string; fecha: string }>({
       query: ({ seccionId, fecha }) => ({
-        url: `/asistencias/alumno/seccion/${seccionId}`,
+        url: `/api/asistencias/alumno/seccion/${seccionId}`,
         method: "GET",
         params: { fecha },
       }),

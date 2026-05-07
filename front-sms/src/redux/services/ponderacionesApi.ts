@@ -26,18 +26,18 @@ export const ponderacionesApi = createApi({
   tagTypes: ["Ponderaciones"],
   endpoints: (builder) => ({
     getPonderaciones: builder.query<PonderacionesResponse, void>({
-      query: () => "/ponderaciones",
+      query: () => "/api/ponderaciones",
       providesTags: [{ type: "Ponderaciones", id: "LIST" }],
     }),
 
     getPonderacionById: builder.query<PonderacionResponse, string>({
-      query: (id) => `/ponderaciones/${id}`,
+      query: (id) => `/api/ponderaciones/${id}`,
       providesTags: (result, error, id) => [{ type: "Ponderaciones", id }],
     }),
 
     createPonderacion: builder.mutation<PonderacionResponse, CreatePonderacionDto>({
       query: (data) => ({
-        url: "/ponderaciones",
+        url: "/api/ponderaciones",
         method: "POST",
         body: data,
       }),
@@ -46,7 +46,7 @@ export const ponderacionesApi = createApi({
 
     updatePonderacion: builder.mutation<PonderacionResponse, { id: string; data: UpdatePonderacionDto }>({
       query: ({ id, data }) => ({
-        url: `/ponderaciones/${id}`,
+        url: `/api/ponderaciones/${id}`,
         method: "PUT",
         body: data,
       }),
@@ -58,19 +58,19 @@ export const ponderacionesApi = createApi({
 
     deletePonderacion: builder.mutation<PonderacionResponse, string>({
       query: (id) => ({
-        url: `/ponderaciones/${id}`,
+        url: `/api/ponderaciones/${id}`,
         method: "DELETE",
       }),
       invalidatesTags: [{ type: "Ponderaciones", id: "LIST" }],
     }),
 
     getPonderacionesByCiclo: builder.query<PonderacionesResponse, string>({
-      query: (cicloId) => `/ponderaciones/ciclo/${cicloId}`,
+      query: (cicloId) => `/api/ponderaciones/ciclo/${cicloId}`,
       providesTags: [{ type: "Ponderaciones", id: "CICLO" }],
     }),
 
     getPonderacionesResumenByCiclo: builder.query<PonderacionResumenResponse, string>({
-      query: (cicloId) => `/ponderaciones/ciclo/${cicloId}/resumen`,
+      query: (cicloId) => `/api/ponderaciones/ciclo/${cicloId}/resumen`,
       providesTags: [{ type: "Ponderaciones", id: "RESUMEN" }],
     }),
   }),

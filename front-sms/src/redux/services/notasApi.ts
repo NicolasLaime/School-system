@@ -43,12 +43,12 @@ export const notasApi = createApi({
 
     // Traer todas las notas
     getNotas: builder.query<NotasResponse, void>({
-      query: () => "/notas",
+      query: () => "/api/notas",
     }),
 
     //traer notas por id
     getNotasbyId: builder.query<NotaResponse, string>({
-      query: (id) => `/notas/${id}`,
+      query: (id) => `/api/notas/${id}`,
     }),
 
     //crear Notas
@@ -56,7 +56,7 @@ export const notasApi = createApi({
       query: (Notas) => {
         console.log("🛠️ Enviando notas desde mutation:", Notas);
         return {
-          url: "notas",
+          url: "/api/notas",
           method: "POST",
           body: Notas,
         };
@@ -68,7 +68,7 @@ export const notasApi = createApi({
       query: ({ id, data }) => {
         console.log("🛠️ Enviando Notas desde mutation:", data);
         return {
-          url: `/notas/${id}`,
+          url: `/api/notas/${id}`,
           method: "PUT",
           body: data,
         };
@@ -78,9 +78,9 @@ export const notasApi = createApi({
     //agregar o editar nota
     createOrUpdateNota: builder.mutation<NotaResponse, createOrUpdateNota>({
       query: (body) => {
-        console.log('📤 Datos enviados a /notas:', body);
+        console.log('📤 Datos enviados a /api/notas:', body);
         return {
-          url: "/notas",
+          url: "/api/notas",
           method: "POST",
           body,
         };

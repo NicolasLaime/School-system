@@ -21,27 +21,27 @@ export const clasesApi = createApi({
   endpoints: (builder) => ({
     // Traer todas las clases
     getClases: builder.query<ClasesResponse, void>({
-      query: () => "/clases",
+      query: () => "/api/clases",
     }),
 
     // Traer clases por id
     getClasesbyId: builder.query<ClaseResponse, string>({
-      query: (id) => `/clases/${id}`,
+      query: (id) => `/api/clases/${id}`,
     }),
 
     // Traer clases por docente
     getClasesByDocente: builder.query<ClasesResponse, string>({
-      query: (docenteId) => `/clases/docente/${docenteId}`,
+      query: (docenteId) => `/api/clases/docente/${docenteId}`,
     }),
 
     // Traer clases por materia
     getClasesByMateria: builder.query<Clase[], string>({
-      query: (materiaId) => `/clases/materia/${materiaId}`,
+      query: (materiaId) => `/api/clases/materia/${materiaId}`,
     }),
 
     // Traer clases por alumno
     getClasesByAlumno: builder.query<Clase[], string>({
-      query: (alumnoId) => `/clases/alumno/${alumnoId}`,
+      query: (alumnoId) => `/api/clases/alumno/${alumnoId}`,
     }),
 
     //crear nueva clase
@@ -49,7 +49,7 @@ export const clasesApi = createApi({
       query: (clase) => {
         console.log("🛠️ Enviando clase desde mutation:", clase);
         return {
-          url: "clases",
+          url: "/api/clases",
           method: "POST",
           body: clase,
         };
@@ -61,7 +61,7 @@ export const clasesApi = createApi({
       query: ({id , data}) => {
         console.log("🛠️ Enviando Clase desde mutation:", data);
         return {
-          url: `/clases/${id}`,
+          url: `/api/clases/${id}`,
           method: "PUT",
           body: data,
         };

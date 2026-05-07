@@ -30,13 +30,13 @@ export const alumnosApi = createApi({
 
     // Traer todas las materias
     getAlumnos: builder.query<alumnosResponse, void>({
-      query: () => "/alumnos",
+      query: () => "/api/alumnos",
       providesTags: [{ type: 'Alumnos', id: 'LIST' }],
     }),
 
     //traer alumno por id
     getAlumnobyId: builder.query<AlumnoResponse, string>({
-      query: (id) => `/alumnos/${id}`,
+      query: (id) => `/api/alumnos/${id}`,
       providesTags: ['Alumnos'],
     }),
 
@@ -45,7 +45,7 @@ export const alumnosApi = createApi({
       query: (alumno) => {
         console.log("🛠️ Enviando alumno desde mutation:", alumno);
         return {
-          url: "alumnos",
+          url: "/api/alumnos",
           method: "POST",
           body: alumno,
         };
@@ -57,7 +57,7 @@ export const alumnosApi = createApi({
       query: ({ id, data }) => {
         console.log("🛠️ Enviando alumno desde mutation:", data);
         return {
-          url: `/alumnos/${id}`,
+          url: `/api/alumnos/${id}`,
           method: "PUT",
           body: data,
         };
@@ -74,7 +74,7 @@ export const alumnosApi = createApi({
         totalNotas: number;
       };
     }, { id: string; anio: number }>({
-      query: ({ id, anio }) => `/alumnos/${id}/notas/${anio}`,
+      query: ({ id, anio }) => `/api/alumnos/${id}/notas/${anio}`,
       providesTags: ['Alumnos'],
     }),
 
@@ -85,7 +85,7 @@ export const alumnosApi = createApi({
       success: boolean;
     }, string>({
       query: (id) => ({
-        url: `/alumnos/${id}`,
+        url: `/api/alumnos/${id}`,
         method: "DELETE",
       }),
       invalidatesTags: ['Alumnos'],
@@ -93,19 +93,19 @@ export const alumnosApi = createApi({
 
     //alumno por seccion
     getAlumnosPorSeccion: builder.query<alumnosResponse, string>({
-  query: (seccionId) => `/alumnos/seccion/${seccionId}`,
+  query: (seccionId) => `/api/alumnos/seccion/${seccionId}`,
   providesTags: ['Alumnos'],
 }),
 
     //alumno por grado y ciclo lectivo
     getAlumnosPorGradoYCiclo: builder.query<alumnosResponse, { gradoId: string; cicloLectivo: string }>({
-      query: ({ gradoId, cicloLectivo }) => `/alumnos/grado/${gradoId}/ciclo/${cicloLectivo}`,
+      query: ({ gradoId, cicloLectivo }) => `/api/alumnos/grado/${gradoId}/ciclo/${cicloLectivo}`,
       providesTags: ['Alumnos'],
     }),
 
     //alumno por codigo
     getAlumnosPorCodigo: builder.query<alumnosResponse, string>({
-      query: (codigo) => `/alumnos/codigo/${codigo}`,
+      query: (codigo) => `/api/alumnos/codigo/${codigo}`,
       providesTags: ['Alumnos'],
     }),
   }),

@@ -22,31 +22,31 @@ export const materiasApi = createApi({
   endpoints: (builder) => {
     // Traer todas las asignaturas
     const getAsignaturas = builder.query<AsignaturasResponse, void>({
-      query: () => "/asignaturas",
+      query: () => "/api/asignaturas",
       providesTags: [{ type: "Asignaturas", id: "LIST" }],
     });
 
     // Traer asignatura por id
     const getAsignaturaById = builder.query<AsignaturaResponse, string>({
-      query: (id) => `/asignaturas/${id}`,
+      query: (id) => `/api/asignaturas/${id}`,
       providesTags: (result, error, id) => [{ type: "Asignaturas", id }],
     });
 
     // Traer asignatura por codigo
     const getAsignaturasByCodigo = builder.query<AsignaturaResponse, string>({
-      query: (codigo) => `/asignaturas/codigo/${codigo}`,
+      query: (codigo) => `/api/asignaturas/codigo/${codigo}`,
       providesTags: (result, error, codigo) => [{ type: "Asignaturas", id: codigo }],
     });
 
     // Traer asignaturas por grado
     const getAsignaturasByGrado = builder.query<AsignaturasResponse, string>({
-      query: (gradoId) => `/asignaturas/grado/${gradoId}`,
+      query: (gradoId) => `/api/asignaturas/grado/${gradoId}`,
       providesTags: (result, error, gradoId) => [{ type: "Asignaturas", id: `GRADO_${gradoId}` }],
     });
 
     // Traer asignaturas por docente
     const getAsignaturasByDocente = builder.query<AsignaturasResponse, string>({
-      query: (docenteId) => `/asignaturas/docente/${docenteId}`,
+      query: (docenteId) => `/api/asignaturas/docente/${docenteId}`,
       providesTags: (result, error, docenteId) => [{ type: "Asignaturas", id: `DOCENTE_${docenteId}` }],
     });
     
@@ -55,7 +55,7 @@ export const materiasApi = createApi({
       query: (data) => {
         console.log("🛠️ Enviando asignatura desde mutation:", data);
         return {
-          url: "/asignaturas",
+          url: "/api/asignaturas",
           method: "POST",
           body: {
             nombre: data.nombre,
@@ -76,7 +76,7 @@ export const materiasApi = createApi({
         if (data.codigo) body.codigo = data.codigo;
         if (data.gradoId) body.gradoId = Number(data.gradoId);
         return {
-          url: `/asignaturas/${id}`,
+          url: `/api/asignaturas/${id}`,
           method: "PUT",
           body,
         };
@@ -90,7 +90,7 @@ export const materiasApi = createApi({
     // Eliminar asignatura
     const deleteAsignatura = builder.mutation<AsignaturaResponse, string>({
       query: (id) => ({
-        url: `/asignaturas/${id}`,
+        url: `/api/asignaturas/${id}`,
         method: "DELETE",
       }),
       invalidatesTags: [{ type: "Asignaturas", id: "LIST" }],
@@ -101,7 +101,7 @@ export const materiasApi = createApi({
       query: (data) => {
         console.log("🛠️ Asignando docente:", data);
         return {
-          url: "/asignaturas/asignar-docente",
+          url: "/api/asignaturas/asignar-docente",
           method: "POST",
           body: {
             docenteId: Number(data.docenteId),
@@ -117,7 +117,7 @@ export const materiasApi = createApi({
     const desasignarDocente = builder.mutation<AsignaturaResponse, { docenteId: string | number; asignaturaId: string | number; seccionId: string | number }>({
       query: (data) => {
         return {
-          url: "/asignaturas/asignar-docente",
+          url: "/api/asignaturas/asignar-docente",
           method: "DELETE",
           body: {
             docenteId: Number(data.docenteId),

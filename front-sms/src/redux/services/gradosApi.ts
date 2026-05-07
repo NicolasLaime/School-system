@@ -21,12 +21,12 @@ export const gradosApi = createApi({
   tagTypes: ["Grados"],
   endpoints: (builder) => ({
     getGrados: builder.query<GradosResponse, void>({
-      query: () => "/grados",
+      query: () => "/api/grados",
       providesTags: [{ type: "Grados", id: "LIST" }],
     }),
 
     getGradoById: builder.query<GradoResponse, string>({
-      query: (id) => `/grados/${id}`,
+      query: (id) => `/api/grados/${id}`,
       providesTags: (result, error, id) => [{ type: "Grados", id }],
     }),
 
@@ -34,7 +34,7 @@ export const gradosApi = createApi({
       query: (data) => {
         console.log(" datos enviados a /grados", data);
         return {
-          url: "/grados",
+          url: "/api/grados",
           method: "POST",
           body: {
             nombre: data.nombre,
@@ -51,7 +51,7 @@ export const gradosApi = createApi({
         if (data.nombre) body.nombre = data.nombre;
         if (data.ciclo_id) body.cicloEducativoId = Number(data.ciclo_id);
         return {
-          url: `/grados/${id}`,
+          url: `/api/grados/${id}`,
           method: "PUT",
           body,
         };
@@ -64,7 +64,7 @@ export const gradosApi = createApi({
 
     deleteGrado: builder.mutation<GradoResponse, string>({
       query: (id) => ({
-        url: `/grados/${id}`,
+        url: `/api/grados/${id}`,
         method: "DELETE",
       }),
       invalidatesTags: [{ type: "Grados", id: "LIST" }],

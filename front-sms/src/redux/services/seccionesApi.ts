@@ -21,19 +21,19 @@ export const seccionesApi = createApi({
   tagTypes: ["Seccion"],
   endpoints: (builder) => ({
     getSecciones: builder.query<SeccionesResponse, void>({
-      query: () => "/seccion",
+      query: () => "/api/seccion",
       providesTags: [{ type: "Seccion", id: "LIST" }],
     }),
 
     getSeccionById: builder.query<SeccionResponse, string>({
-      query: (id) => `/seccion/${id}`,
+      query: (id) => `/api/seccion/${id}`,
       providesTags: (result, error, id) => [{ type: "Seccion", id }],
     }),
 
     createSeccion: builder.mutation<SeccionResponse, { nombre: string; grado_id: string | number; ciclo_lectivo: string }>({
       query: (data) => {
         return {
-          url: "/seccion",
+          url: "/api/seccion",
           method: "POST",
           body: {
             nombre: data.nombre,
@@ -52,7 +52,7 @@ export const seccionesApi = createApi({
         if (data.grado_id) body.gradoId = Number(data.grado_id);
         if (data.ciclo_lectivo) body.cicloLectivo = data.ciclo_lectivo;
         return {
-          url: `/seccion/${id}`,
+          url: `/api/seccion/${id}`,
           method: "PUT",
           body,
         };
@@ -65,19 +65,19 @@ export const seccionesApi = createApi({
 
     deleteSeccion: builder.mutation<SeccionResponse, string>({
       query: (id) => ({
-        url: `/seccion/${id}`,
+        url: `/api/seccion/${id}`,
         method: "DELETE",
       }),
       invalidatesTags: [{ type: "Seccion", id: "LIST" }],
     }),
 
     getSeccionesByGrado: builder.query<SeccionesResponse, string>({
-      query: (gradoId) => `/seccion/grado/${gradoId}`,
+      query: (gradoId) => `/api/seccion/grado/${gradoId}`,
       providesTags: (result, error, gradoId) => [{ type: "Seccion", id: `GRADO_${gradoId}` }],
     }),
 
     getSeccionesByCicloLectivo: builder.query<SeccionesResponse, string>({
-      query: (cicloLectivo) => `/seccion/ciclo-lectivo/${cicloLectivo}`,
+      query: (cicloLectivo) => `/api/seccion/ciclo-lectivo/${cicloLectivo}`,
       providesTags: (result, error, cicloLectivo) => [{ type: "Seccion", id: `CICLO_${cicloLectivo}` }],
     }),
   }),
