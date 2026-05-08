@@ -42,6 +42,8 @@ const FormNuevaSeccion = () => {
   const [createSeccion, { isLoading }] = useCreateSeccionMutation();
   const { data: gradosData, isLoading: isLoadingGrados } = useGetGradosQuery();
 
+  console.log("gradosData", gradosData);
+
   const form = useForm<z.infer<typeof formSeccionSchema>>({
     resolver: zodResolver(formSeccionSchema),
     defaultValues: {
@@ -115,7 +117,7 @@ const FormNuevaSeccion = () => {
                   </FormControl>
                   <SelectContent>
                     {gradosData?.data?.map((grado) => (
-                      <SelectItem key={grado.id} value={grado.id}>
+                      <SelectItem key={grado.id} value={String(grado.id)}>
                         {grado.nombre}
                       </SelectItem>
                     ))}

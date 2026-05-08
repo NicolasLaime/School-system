@@ -1,26 +1,32 @@
 "use client";
-import React, { useEffect, useMemo, useState } from "react";
-import { Nota } from "../../../types/nota.type";
+import React, { useMemo, useState } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { toast } from "sonner";
-import { useCreateOrUpdateNotaMutation } from "@/redux/services/notasApi";
+import { useCreateNotaMutation, useGetResumenAlumnoQuery } from "@/redux/services/notasApi";
 import { useSelector } from "react-redux";
 import { selectUserLogin } from "@/redux/features/userSlice";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import { Alumno } from "../../../types/alumnos.types";
- // Importar el tipo Clase desde Usuario.type
+import { Loader2 } from "lucide-react";
+import { SelectorAnioLectivo } from "./SelectorAnioLectivo";
 
 interface TablasNotasProps {
   alumnoId: string;
-  dataNotas: Nota[];
   onSaved?: () => void;
   anioLectivo: number;
-  clasesDelAnio: Nota[]; // Este tipo podría ser incorrecto, probablemente debería ser Clase[]
-  dataAlumno: Alumno | undefined;
+  aniosDisponibles: number[];
+  seccionId?: number;
+  dataAlumno?: {
+    nombre?: string;
+    apellido?: string;
+    dni?: string;
+    direccion?: string;
+    grado?: string | number;
+    seccion?: string;
+  };
 }
 
 type Bim = 1 | 2 | 3 | 4;
@@ -28,8 +34,6 @@ type Bim = 1 | 2 | 3 | 4;
 interface FilaTabla {
   materia: string;
   materiaId: string;
-  codigo: string;
-  ciclo: string;
   bimestre1: string | number;
   bimestre2: string | number;
   bimestre3: string | number;
@@ -37,66 +41,72 @@ interface FilaTabla {
   promedio: number | string;
 }
 
-// Definir tipo para el estado draft
 type DraftState = Record<Bim, string>;
 
-const TablasNotas = ({ alumnoId, dataNotas = [], onSaved, anioLectivo, clasesDelAnio = [], dataAlumno }: TablasNotasProps) => {
-  const userLogin = useSelector(selectUserLogin);
-  const [createOrUpdateNota, { isLoading: saving }] = useCreateOrUpdateNotaMutation();
+const BIMESTRE_MAP: Record<Bim, string> = {
+  1: "PRIMERO",
+  2: "SEGUNDO",
+  3: "TERCERO",
+  4: "CUARTO",
+};
 
-  // 1) PIVOT inicial desde props
-  const materiasPivot = useMemo(() => {
-    const map = new Map<string, FilaTabla>();
-    dataNotas.forEach((n) => {
-      const key = n.materia.id;
-      if (!map.has(key)) {
-        map.set(key, {
-          materia: n.materia.nombre,
-          materiaId: n.materia.id,
-          codigo: n.materia.codigo,
-          ciclo: n.materia.ciclo,
-          bimestre1: "",
-          bimestre2: "",
-          bimestre3: "",
-          bimestre4: "",
-          promedio: "",
-        });
-      }
-      const row = map.get(key)!;
-      // Corregir el acceso a la propiedad bimestre
-      (row)[`bimestre${n.bimestre}`] = n.valor; // número
-    });
-    
-    // Calcular promedios
-    Array.from(map.values()).forEach(row => {
-      const notas = [];
-      if (typeof row.bimestre1 === 'number') notas.push(row.bimestre1);
-      if (typeof row.bimestre2 === 'number') notas.push(row.bimestre2);
-      if (typeof row.bimestre3 === 'number') notas.push(row.bimestre3);
-      if (typeof row.bimestre4 === 'number') notas.push(row.bimestre4);
-      
-      if (notas.length > 0) {
-        const sum = notas.reduce((a, b) => a + b, 0);
-        row.promedio = (sum / notas.length).toFixed(2);
-      } else {
-        row.promedio = "-";
-      }
-    });
-    
-    return Array.from(map.values()).sort((a, b) => a.materia.localeCompare(b.materia));
-  }, [dataNotas]);
+const BIMESTRE_LABEL: Record<Bim, string> = {
+  1: "1° Bimestre",
+  2: "2° Bimestre",
+  3: "3° Bimestre",
+  4: "4° Bimestre",
+};
 
-  // 2) Estado local de filas (para reflejar cambios sin recargar)
-  const [rows, setRows] = useState<FilaTabla[]>([]);
-  useEffect(() => setRows(materiasPivot), [materiasPivot]);
+const TablasNotas = ({ alumnoId, onSaved, anioLectivo: initialAnio, aniosDisponibles, seccionId, dataAlumno }: TablasNotasProps) => {
+  const userLogin = useSelector(selectUserLogin) as { id?: string | number; email: string; role: string } | null;
+  const [createNota, { isLoading: saving }] = useCreateNotaMutation();
+  const [anioLectivo, setAnioLectivo] = useState(initialAnio);
+  const { data: resumenData, isLoading, refetch } = useGetResumenAlumnoQuery(
+    { alumnoId, cicloLectivo: String(anioLectivo) },
+    { skip: !alumnoId },
+  );
 
-  // 3) Edición por fila
+  console.log("resumenData", resumenData)
+
+
   const [editandoMateriaId, setEditandoMateriaId] = useState<string | null>(null);
-  const [draft, setDraft] = useState<DraftState>({
-    1: "", 2: "", 3: "", 4: ""
-  });
+  const [draft, setDraft] = useState<DraftState>({ 1: "", 2: "", 3: "", 4: "" });
 
   const toStr = (v: string | number) => (v === "" ? "" : String(v));
+
+  const rows = useMemo(() => {
+    const asignaturas = resumenData?.data?.asignaturas;
+    if (!asignaturas || asignaturas.length === 0) return [];
+
+    const BIMESTRE_KEY_MAP: Record<number, string> = {
+      1: "Bimestre 1",
+      2: "Bimestre 2",
+      3: "Bimestre 3",
+      4: "Bimestre 4",
+    };
+
+    return asignaturas.map((item) => {
+      const b1 = item.promediosPorBimestre[BIMESTRE_KEY_MAP[1]] ?? "";
+      const b2 = item.promediosPorBimestre[BIMESTRE_KEY_MAP[2]] ?? "";
+      const b3 = item.promediosPorBimestre[BIMESTRE_KEY_MAP[3]] ?? "";
+      const b4 = item.promediosPorBimestre[BIMESTRE_KEY_MAP[4]] ?? "";
+
+      const notas = [b1, b2, b3, b4].filter((v): v is number => typeof v === "number");
+      const promedio = notas.length > 0
+        ? (notas.reduce((a, b) => a + b, 0) / notas.length).toFixed(2)
+        : "";
+
+      return {
+        materia: item.asignaturaNombre,
+        materiaId: String(item.asignaturaId),
+        bimestre1: b1,
+        bimestre2: b2,
+        bimestre3: b3,
+        bimestre4: b4,
+        promedio,
+      };
+    }).sort((a, b) => a.materia.localeCompare(b.materia));
+  }, [resumenData]);
 
   const beginEdit = (fila: FilaTabla) => {
     setEditandoMateriaId(fila.materiaId);
@@ -123,58 +133,45 @@ const TablasNotas = ({ alumnoId, dataNotas = [], onSaved, anioLectivo, clasesDel
     (toStr(fila.bimestre3) !== draft[3]) ||
     (toStr(fila.bimestre4) !== draft[4]);
 
-  const getClaseIdPorMateria = (materiaId: string): string | null => {
-    // Primero buscar en notas existentes que tengan claseId válido
-    const notaConClase = dataNotas.find(n => 
-      n.materia.id === materiaId && n.clase?.id
-    );
-    if (notaConClase?.clase?.id) {
-      return notaConClase.clase.id;
-    }
-    
-    // Si no existe, buscar en las inscripciones del año
-    // Aquí asumimos que clasesDelAnio contiene objetos con propiedad clase
-    const inscripcion = clasesDelAnio.find(
-      (insc) => insc.clase?.materiaId === materiaId
-    );
-    return inscripcion?.clase?.id || null;
-  };
-
-  // Función para calcular promedio
   const calcularPromedio = (b1: string | number, b2: string | number, b3: string | number, b4: string | number): string => {
-    const notas = [];
-    if (typeof b1 === 'number') notas.push(b1);
-    if (typeof b2 === 'number') notas.push(b2);
-    if (typeof b3 === 'number') notas.push(b3);
-    if (typeof b4 === 'number') notas.push(b4);
-    
+    const notas = [b1, b2, b3, b4]
+      .filter((v): v is number => typeof v === 'number');
     if (notas.length > 0) {
-      const sum = notas.reduce((a, b) => a + b, 0);
-      return (sum / notas.length).toFixed(2);
+      return (notas.reduce((a, b) => a + b, 0) / notas.length).toFixed(2);
     }
     return "-";
   };
 
-  // Función para guardar una fila de la tabla
   const saveRow = async (fila: FilaTabla) => {
     if (!userLogin?.id) {
       toast.error("Usuario no autenticado");
       return;
     }
 
+    const derivedSeccionId = seccionId || 0;
+    if (!derivedSeccionId) {
+      toast.error("No se encontró la sección del alumno. Asegúrate de que esté inscrito en una sección.");
+      return;
+    }
+
     const ops: Array<{ b: Bim; val: number }> = [];
+    let hasError = false;
+
     ([1, 2, 3, 4] as Bim[]).forEach((b) => {
       const raw = draft[b].trim();
       if (raw === "") return;
       const num = parseFloat(raw);
       if (isNaN(num) || num < 1 || num > 10) {
         toast.error(`Nota inválida en ${b}° bimestre (1 a 10)`);
+        hasError = true;
         return;
       }
-      const original = toStr((fila)[`bimestre${b}`]);
+      const original = toStr((fila)[`bimestre${b}` as keyof FilaTabla]);
       if (original === raw) return;
       ops.push({ b, val: num });
     });
+
+    if (hasError) return;
 
     if (ops.length === 0) {
       toast.message("No hay cambios por guardar");
@@ -182,109 +179,60 @@ const TablasNotas = ({ alumnoId, dataNotas = [], onSaved, anioLectivo, clasesDel
       return;
     }
 
-    // Obtener claseId correcto
-    const claseId = getClaseIdPorMateria(fila.materiaId);
-    
-    if (!claseId) {
-      toast.error(`No se encontró la clase para la materia ${fila.materia}`);
-      console.error(`Debug - Materia: ${fila.materia} (ID: ${fila.materiaId})`);
-      console.error('Clases disponibles:', clasesDelAnio);
-      return;
-    }
-
     try {
       for (const { b, val } of ops) {
-        await createOrUpdateNota({
-          estudianteId: alumnoId,
-          materiaId: fila.materiaId,
-          claseId: claseId,
-          bimestre: b,
+        await createNota({
+          alumnoId: Number(alumnoId),
+          asignaturaId: Number(fila.materiaId),
+          seccionId: derivedSeccionId,
+          bimestre: BIMESTRE_MAP[b],
+          cicloLectivo: String(anioLectivo),
+          tipoNota: "EXAMEN",
           valor: val,
-          docenteId: userLogin.id,
+          docenteId: Number(userLogin.id),
         }).unwrap();
       }
 
-      // Actualizar estado local
-      setRows((prev) =>
-        prev.map((r) =>
-          r.materiaId === fila.materiaId
-            ? {
-              ...r,
-              bimestre1: draft[1] === "" ? r.bimestre1 : parseFloat(draft[1]),
-              bimestre2: draft[2] === "" ? r.bimestre2 : parseFloat(draft[2]),
-              bimestre3: draft[3] === "" ? r.bimestre3 : parseFloat(draft[3]),
-              bimestre4: draft[4] === "" ? r.bimestre4 : parseFloat(draft[4]),
-              promedio: calcularPromedio(
-                draft[1] === "" ? r.bimestre1 : parseFloat(draft[1]),
-                draft[2] === "" ? r.bimestre2 : parseFloat(draft[2]),
-                draft[3] === "" ? r.bimestre3 : parseFloat(draft[3]),
-                draft[4] === "" ? r.bimestre4 : parseFloat(draft[4])
-              )
-            }
-            : r
-        )
-      );
-      
-      toast.success("Notas guardadas");
+      toast.success("Notas guardadas correctamente");
       cancelEdit();
       onSaved?.();
+      refetch();
     } catch (e) {
       console.error('Error al guardar notas:', e);
       toast.error("Error al guardar notas");
     }
   };
 
-  // 🔥 exportar lista de notas a Excel
   const exportarListaNotasExcel = () => {
     try {
-      // Encabezados
-      const headers = [
-        "Materia",
-        "Código",
-        "Ciclo",
-        "Bimestre 1",
-        "Bimestre 2",
-        "Bimestre 3",
-        "Bimestre 4",
-        "Promedio"
-      ];
+      const headers = ["Materia", "Bimestre 1", "Bimestre 2", "Bimestre 3", "Bimestre 4", "Promedio"];
 
-      // Datos formateados usando las filas actuales
       const dataToExport = rows.map((fila) => [
         fila.materia,
-        fila.codigo,
-        fila.ciclo,
         fila.bimestre1 === "" ? "-" : fila.bimestre1,
         fila.bimestre2 === "" ? "-" : fila.bimestre2,
         fila.bimestre3 === "" ? "-" : fila.bimestre3,
         fila.bimestre4 === "" ? "-" : fila.bimestre4,
-        fila.promedio
+        fila.promedio,
       ]);
 
-      // Crear hoja de trabajo
       const worksheet = XLSX.utils.aoa_to_sheet([headers, ...dataToExport]);
-      
-      // Ajustar anchos de columna
-      const columnWidths = [
-        { width: 30 }, // Materia
-        { width: 15 }, // Código
-        { width: 10 }, // Ciclo
-        { width: 12 }, // Bimestre 1
-        { width: 12 }, // Bimestre 2
-        { width: 12 }, // Bimestre 3
-        { width: 12 }, // Bimestre 4
-        { width: 12 }, // Promedio
-      ];
-      worksheet['!cols'] = columnWidths;
 
-      // Crear libro y guardar
+      worksheet['!cols'] = [
+        { width: 30 },
+        { width: 12 },
+        { width: 12 },
+        { width: 12 },
+        { width: 12 },
+        { width: 12 },
+      ];
+
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, "Notas");
-      
-      // Generar nombre de archivo con fecha
+
       const fecha = new Date().toISOString().slice(0, 10);
-      XLSX.writeFile(workbook, `Notas ${dataAlumno?.nombre} ${dataAlumno?.apellido} ${anioLectivo}_${fecha}.xlsx`);
-      
+      XLSX.writeFile(workbook, `Notas_${dataAlumno?.nombre || ''}_${dataAlumno?.apellido || ''}_${anioLectivo}_${fecha}.xlsx`);
+
       toast.success("Archivo Excel exportado correctamente");
     } catch (error) {
       console.error("Error en exportación a Excel:", error);
@@ -292,7 +240,6 @@ const TablasNotas = ({ alumnoId, dataNotas = [], onSaved, anioLectivo, clasesDel
     }
   };
 
-  // 🔥 exportar lista de notas a PDF
   const exportarListaNotasPDF = () => {
     try {
       const doc = new jsPDF();
@@ -300,31 +247,25 @@ const TablasNotas = ({ alumnoId, dataNotas = [], onSaved, anioLectivo, clasesDel
       const margin = 14;
       let currentY = 15;
 
-      // Configuración de colores
       const primaryColor: [number, number, number] = [66, 135, 245];
-      const lightBlue: [number, number, number] = [225, 235, 255];
       const darkText: [number, number, number] = [51, 51, 51];
       const grayText: [number, number, number] = [102, 102, 102];
 
-      // Logo o encabezado
       doc.setFillColor(...primaryColor);
       doc.rect(0, 0, pageWidth, 10, 'F');
-      
-      // Título del documento
+
       doc.setFontSize(18);
       doc.setTextColor(...darkText);
       doc.setFont('helvetica', 'bold');
       doc.text("REPORTE DE NOTAS", pageWidth / 2, currentY, { align: 'center' });
       currentY += 10;
 
-      // Información de la escuela
       doc.setFontSize(10);
       doc.setTextColor(...grayText);
       doc.setFont('helvetica', 'normal');
       doc.text("Instituto Educativo Excelencia", pageWidth / 2, currentY, { align: 'center' });
       currentY += 15;
 
-      // Información del alumno
       doc.setFontSize(12);
       doc.setTextColor(...darkText);
       doc.setFont('helvetica', 'bold');
@@ -333,37 +274,30 @@ const TablasNotas = ({ alumnoId, dataNotas = [], onSaved, anioLectivo, clasesDel
 
       doc.setFontSize(10);
       doc.setFont('helvetica', 'normal');
-      doc.text(`Nombre: ${dataAlumno?.nombre} ${dataAlumno?.apellido}`, margin, currentY);
+      doc.text(`Nombre: ${dataAlumno?.nombre || ''} ${dataAlumno?.apellido || ''}`, margin, currentY);
       doc.text(`Año Lectivo: ${anioLectivo}`, pageWidth / 2, currentY);
       currentY += 6;
 
-      doc.text(`DNI: ${dataAlumno?.dni}`, margin, currentY);
+      doc.text(`DNI: ${dataAlumno?.dni || '-'}`, margin, currentY);
       doc.text(`Fecha: ${new Date().toLocaleDateString()}`, pageWidth / 2, currentY);
       currentY += 6;
 
-      doc.text(`Dirección: ${dataAlumno?.direccion}`, margin, currentY);
+      doc.text(`Dirección: ${dataAlumno?.direccion || '-'}`, margin, currentY);
       currentY += 6;
 
-      doc.text(`Grado/Sección: ${dataAlumno?.grado} / ${dataAlumno?.seccion}`, margin, currentY);
+      doc.text(`Grado/Sección: ${dataAlumno?.grado || '-'} / ${dataAlumno?.seccion || '-'}`, margin, currentY);
       currentY += 15;
 
-      // Preparar datos para la tabla
-      const headers = [
-        ["Materia", "Código", "Ciclo", "Bim. 1", "Bim. 2", "Bim. 3", "Bim. 4", "Promedio"]
-      ];
-      
+      const headers = [["Materia", "Bim. 1", "Bim. 2", "Bim. 3", "Bim. 4", "Promedio"]];
       const data = rows.map((fila) => [
         fila.materia,
-        fila.codigo,
-        fila.ciclo,
         fila.bimestre1 === "" ? "-" : String(fila.bimestre1),
         fila.bimestre2 === "" ? "-" : String(fila.bimestre2),
         fila.bimestre3 === "" ? "-" : String(fila.bimestre3),
         fila.bimestre4 === "" ? "-" : String(fila.bimestre4),
-        String(fila.promedio)
+        String(fila.promedio),
       ]);
 
-      // Generar tabla con mejor estilo
       autoTable(doc, {
         head: headers,
         body: data,
@@ -374,55 +308,26 @@ const TablasNotas = ({ alumnoId, dataNotas = [], onSaved, anioLectivo, clasesDel
           textColor: [255, 255, 255],
           fontStyle: 'bold',
           fontSize: 9,
-          cellPadding: 3
+          cellPadding: 3,
         },
         bodyStyles: {
           textColor: darkText,
           fontSize: 9,
-          cellPadding: 3
+          cellPadding: 3,
         },
         alternateRowStyles: {
-          fillColor: lightBlue
+          fillColor: [225, 235, 255],
         },
         styles: {
           lineColor: [200, 200, 200],
-          lineWidth: 0.1
+          lineWidth: 0.1,
         },
         margin: { top: currentY },
-        didDrawPage: function() {
-          // Pie de página
-          doc.setFontSize(8);
-          doc.setTextColor(150, 150, 150);
-          doc.text(
-            `Página ${(doc as jsPDF & { internal: { getNumberOfPages(): number } }).internal.getNumberOfPages()}`,
-            pageWidth / 2,
-            doc.internal.pageSize.getHeight() - 10,
-            { align: 'center' }
-          );
-        }
       });
 
-      // // Calcular promedio general
-      // const promedios = rows.map(row => {
-      //   const promedio = typeof row.promedio === 'string' ? parseFloat(row.promedio) : row.promedio;
-      //   return isNaN(promedio) ? 0 : promedio;
-      // });
-      
-      // const promedioGeneral = promedios.length > 0 
-      //   ? (promedios.reduce((a, b) => a + b, 0) / promedios.length).toFixed(2)
-      //   : "0.00";
-      
-      // Añadir promedio general al final
-      // const finalY = ((doc as any).lastAutoTable?.finalY || 0) + 10;
-      // doc.setFontSize(10);
-      // doc.setFont('helvetica', 'bold');
-      // doc.setTextColor(...darkText);
-      // doc.text(`Promedio General: ${promedioGeneral}`, pageWidth - margin, finalY, { align: 'right' });
-
-      // Guardar PDF
       const fecha = new Date().toISOString().slice(0, 10);
-      doc.save(`Reporte_Notas_${dataAlumno?.nombre}_${dataAlumno?.apellido}_${anioLectivo}_${fecha}.pdf`);
-      
+      doc.save(`Reporte_Notas_${dataAlumno?.nombre || ''}_${dataAlumno?.apellido || ''}_${anioLectivo}_${fecha}.pdf`);
+
       toast.success("Archivo PDF exportado correctamente");
     } catch (error) {
       console.error("Error en exportación a PDF:", error);
@@ -430,19 +335,33 @@ const TablasNotas = ({ alumnoId, dataNotas = [], onSaved, anioLectivo, clasesDel
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex justify-center py-10">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className="p-4 rounded-xl shadow-md">
-      {/* Agregar indicador del año */}
       <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-lg font-semibold">Notas del Año {anioLectivo}</h3>
+        <div className="flex items-center gap-4">
+          <h3 className="text-lg font-semibold">Notas del Alumno</h3>
+          <SelectorAnioLectivo
+            anios={aniosDisponibles}
+            anioSeleccionado={anioLectivo}
+            onAnioChange={setAnioLectivo}
+          />
+        </div>
         <div className="flex gap-2">
-          <Button 
+          <Button
             className="cursor-pointer bg-green-600 hover:bg-green-700"
             onClick={exportarListaNotasExcel}
           >
             Exportar a Excel
           </Button>
-          <Button 
+          <Button
             className="cursor-pointer bg-red-600 hover:bg-red-700"
             onClick={exportarListaNotasPDF}
           >
@@ -472,7 +391,7 @@ const TablasNotas = ({ alumnoId, dataNotas = [], onSaved, anioLectivo, clasesDel
                 <TableCell>{fila.materia}</TableCell>
 
                 {([1, 2, 3, 4] as Bim[]).map((b) => (
-                   <TableCell key={`${fila.materiaId}-${b}`}>
+                  <TableCell key={`${fila.materiaId}-${b}`}>
                     {editing ? (
                       <Input
                         type="number"
@@ -537,7 +456,7 @@ const TablasNotas = ({ alumnoId, dataNotas = [], onSaved, anioLectivo, clasesDel
       {rows.length === 0 && (
         <div className="p-8 text-center text-gray-500">
           <p>No hay notas registradas para este alumno.</p>
-          <p className="text-sm mt-2">Haz clic en Agregar Nota para comenzar.</p>
+          <p className="text-sm mt-2">Edita una fila para agregar notas.</p>
         </div>
       )}
     </div>

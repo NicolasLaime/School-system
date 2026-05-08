@@ -221,6 +221,19 @@ const fullNav: NavSection[] = [
     }],
   },
   {
+    title: "Notas",
+    url: "/dashboard/notas",
+    icon: ClipboardList,
+    rol: ["ADMIN", "DIRECTIVO", "DOCENTE"],
+    items: [{
+      title: "Listado de notas",
+      url: "/dashboard/notas"
+    }, {
+      title: "Nueva nota",
+      url: "/dashboard/notas/nuevo"
+    }],
+  },
+  {
     title: "Notices",
     url: "/dashboard/notices",
     icon: FileText,
