@@ -143,7 +143,7 @@ const TablasNotas = ({ alumnoId, onSaved, anioLectivo: initialAnio, aniosDisponi
   };
 
   const saveRow = async (fila: FilaTabla) => {
-    if (!userLogin?.id) {
+    if (!userLogin) {
       toast.error("Usuario no autenticado");
       return;
     }
@@ -209,10 +209,10 @@ const TablasNotas = ({ alumnoId, onSaved, anioLectivo: initialAnio, aniosDisponi
 
       const dataToExport = rows.map((fila) => [
         fila.materia,
-        fila.bimestre1 === "" ? "-" : fila.bimestre1,
-        fila.bimestre2 === "" ? "-" : fila.bimestre2,
-        fila.bimestre3 === "" ? "-" : fila.bimestre3,
-        fila.bimestre4 === "" ? "-" : fila.bimestre4,
+        fila.bimestre1 === 0 ? "-" : fila.bimestre1,
+        fila.bimestre2 === 0 ? "-" : fila.bimestre2,
+        fila.bimestre3 === 0 ? "-" : fila.bimestre3,
+        fila.bimestre4 === 0 ? "-" : fila.bimestre4,
         fila.promedio,
       ]);
 
@@ -291,10 +291,10 @@ const TablasNotas = ({ alumnoId, onSaved, anioLectivo: initialAnio, aniosDisponi
       const headers = [["Materia", "Bim. 1", "Bim. 2", "Bim. 3", "Bim. 4", "Promedio"]];
       const data = rows.map((fila) => [
         fila.materia,
-        fila.bimestre1 === "" ? "-" : String(fila.bimestre1),
-        fila.bimestre2 === "" ? "-" : String(fila.bimestre2),
-        fila.bimestre3 === "" ? "-" : String(fila.bimestre3),
-        fila.bimestre4 === "" ? "-" : String(fila.bimestre4),
+        fila.bimestre1 === 0 ? "-" : String(fila.bimestre1),
+        fila.bimestre2 === 0 ? "-" : String(fila.bimestre2),
+        fila.bimestre3 === 0 ? "-" : String(fila.bimestre3),
+        fila.bimestre4 === 0 ? "-" : String(fila.bimestre4),
         String(fila.promedio),
       ]);
 
