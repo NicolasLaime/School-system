@@ -28,6 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useGetPonderacionesQuery } from "@/redux/services/ponderacionesApi";
 
 const formNotaSchema = z.object({
   alumnoId: z.string().min(1, { message: "El alumno es requerido" }),
@@ -48,6 +49,10 @@ const FormNuevaNota = () => {
   const { data: asignaturasData, isLoading: isLoadingAsignaturas } = useGetAsignaturasQuery();
   const { data: alumnosData, isLoading: isLoadingAlumnos } = useGetAlumnosQuery();
   const { data: seccionesData, isLoading: isLoadingSecciones } = useGetSeccionesQuery();
+  const { data: ponderacionesData, isLoading: isLoadingPonderaciones } = useGetPonderacionesQuery();
+
+
+
 
   const form = useForm<z.infer<typeof formNotaSchema>>({
     resolver: zodResolver(formNotaSchema),
@@ -57,7 +62,7 @@ const FormNuevaNota = () => {
       seccionId: "",
       bimestre: "",
       cicloLectivo: "",
-      tipoNota: "EXAMEN",
+      tipoNota: "",
       valor: "",
       docenteId: "",
     },
@@ -92,13 +97,15 @@ const FormNuevaNota = () => {
     }
   }
 
-  if (isLoadingAsignaturas || isLoadingAlumnos || isLoadingSecciones) {
+  if (isLoadingAsignaturas || isLoadingAlumnos  || isLoadingSecciones || isLoadingPonderaciones) {
     return (
       <section className="container mx-auto py-10">
         <Loader2 className="animate-spin h-48 w-48 mx-auto" />
       </section>
     );
   }
+
+
 
   return (
     <Form {...form}>
@@ -230,11 +237,11 @@ const FormNuevaNota = () => {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="EXAMEN">Examen</SelectItem>
-                    <SelectItem value="TRABAJO_PRACTICO">Trabajo Practico</SelectItem>
-                    <SelectItem value="TAREA">Tarea</SelectItem>
-                    <SelectItem value="PARTICIPACION">Participacion</SelectItem>
-                    <SelectItem value="PROYECTO">Proyecto</SelectItem>
+                    {ponderacionesData?.data?.map((ponderacion) => (
+                      <SelectItem key={ponderacion.id} value={String(ponderacion.nombre)}>
+                        {ponderacion.nombre}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
                 <FormDescription>Tipo de evaluacion.</FormDescription>

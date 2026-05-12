@@ -40,6 +40,25 @@ export interface CreateNotaRequest {
   docenteId: number;
 }
 
+export interface NotaDetail {
+  id: number;
+  valor: number;
+  tipoNota: string;
+  bimestre: string;
+  cicloLectivo: string;
+  fechaRegistro: string;
+  alumnoId: number;
+  alumnoCodigo: string;
+  alumnoNombre: string;
+  alumnoApellido: string;
+  asignaturaId: number;
+  asignaturaNombre: string;
+  seccionId: number;
+  seccionNombre: string;
+  docenteId: number;
+  docenteNombre: string;
+}
+
 export interface NotaData {
   id: string;
   alumnoId: number;
@@ -58,12 +77,14 @@ export interface NotaData {
 }
 
 export interface NotasResponse {
+  success?: boolean;
   message: string;
-  data: NotaData[];
+  data: NotaDetail[];
   error?: string;
 }
 
 export interface NotaResponse {
+  success?: boolean;
   message: string;
   data: NotaData;
   error?: string;

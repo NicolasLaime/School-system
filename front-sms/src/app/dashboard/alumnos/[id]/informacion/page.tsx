@@ -7,6 +7,7 @@ import { Loader2 } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useGetNotasByAlumnoAsignaturaQuery } from '@/redux/services/notasApi';
 
 const Page = () => {
   const params = useParams();
@@ -15,10 +16,9 @@ const Page = () => {
   const [aniosDisponibles, setAniosDisponibles] = useState<number[]>([]);
 
   const { data: alumnoData, isLoading: isLoadingAlumno, isError: isErrorAlumno } = useGetAlumnobyIdQuery(id);
-
+  const { data: notaDataAsignatura, isLoading: isLoadingNota } = useGetNotasByAlumnoAsignaturaQuery({ alumnoId: id, asignaturaId: 1, cicloLectivo: anioSeleccionado.toString() });
 
  
-
   useEffect(() => {
     const inscripciones = (alumnoData?.data as unknown as { inscripciones?: Array<{ clase: { anioLectivo: number } }> })?.inscripciones;
     if (inscripciones) {
@@ -57,6 +57,18 @@ const Page = () => {
 
   const seccionId = (dataAlumno as unknown as { seccionId?: number })?.seccionId;
 
+  
+  if(isLoadingNota){
+    return(
+      <section className="container mx-auto py-10">
+        <Loader2 className="mx-auto h-48 w-48 animate-spin" />
+      </section>
+    )
+  }
+
+  console.log("data nota asignatura", notaDataAsignatura);
+
+
   return (
     <section className="container mx-auto py-10 px-5">
       <BreadcrumbWithCustomSeparator
@@ -76,7 +88,7 @@ const Page = () => {
         </Card>
       </div>
 
-      <div className="container md:w-200 mx-auto py-10 px-5">
+      <div className="container md:w-400 mx-auto py-10 px-5">
         <TablasNotas
           alumnoId={id}
           onSaved={() => {}}

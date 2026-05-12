@@ -1,6 +1,6 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithReauth } from "./authApi";
-import {  NotasResponse, NotaResponse, CreateNotaRequest, NotaResumenResponse } from "../../../types/nota.type";
+import { NotasResponse, NotaResponse, CreateNotaRequest, NotaResumenResponse } from "../../../types/nota.type";
 
 interface createOrUpdateNota {
   estudianteId: string;
@@ -39,9 +39,9 @@ export const notasApi = createApi({
       providesTags: (result, error, { alumnoId }) => [{ type: "Notas", id: `RESUMEN_${alumnoId}` }],
     }),
 
-    getNotasByAlumnoAsignatura: builder.query<NotasResponse, { alumnoId: string | number; asignaturaId: string | number }>({
-      query: ({ alumnoId, asignaturaId }) =>
-        `/api/notas/alumno/${alumnoId}/asignatura/${asignaturaId}`,
+    getNotasByAlumnoAsignatura: builder.query<NotasResponse, { alumnoId: string | number; asignaturaId: string | number; cicloLectivo: string }>({
+      query: ({ alumnoId, asignaturaId, cicloLectivo }) =>
+        `/api/notas/alumno/${alumnoId}/asignatura/${asignaturaId}?cicloLectivo=${encodeURIComponent(cicloLectivo)}`,
       providesTags: (result, error, { alumnoId }) => [{ type: "Notas", id: `ALUMNO_${alumnoId}` }],
     }),
 
@@ -97,6 +97,11 @@ export const notasApi = createApi({
       invalidatesTags: [{ type: "Notas", id: "LIST" }],
     }),
 
+
+    //nota alumno asignatura
+
+    getNotaAlumnoAsignatura: builder.query<NotaResponse, { alumnoId: number; asignaturaId: number, cicloLectivo: string }>({ query: ({ alumnoId, asignaturaId, cicloLectivo }) => `/api/notas/alumno/${alumnoId}/asignatura/${asignaturaId}?cicloLectivo=${encodeURIComponent(cicloLectivo)}`, providesTags: (result, error, { alumnoId }) => [{ type: "Notas", id: `ALUMNO_${alumnoId}` }] }),
+
   }),
 });
 
@@ -106,6 +111,7 @@ export const {
   useGetNotasBySeccionAsignaturaBimestreQuery,
   useGetResumenAlumnoQuery,
   useGetNotasByAlumnoAsignaturaQuery,
+  useLazyGetNotasByAlumnoAsignaturaQuery,
   useCreateNotaMutation,
   useCreateOrUpdateNotaMutation,
   useUpdateNotaMutation,
