@@ -21,6 +21,7 @@ public class ResumenAlumnoDto {
     private String gradoNombre;
     private String cicloLectivo;
 
+
     // Una fila por asignatura
     private List<FilaAsignaturaDto> asignaturas;
 
@@ -36,6 +37,8 @@ public class ResumenAlumnoDto {
 
         private Long   asignaturaId;
         private String asignaturaNombre;
+        private Long   docenteId;
+        private String docenteNombre;
 
         // Promedio ponderado de cada bimestre: { PRIMERO: 85.5, SEGUNDO: 90.0, ... }
         private Map<String, BigDecimal> promediosPorBimestre;

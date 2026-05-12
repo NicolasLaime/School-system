@@ -102,7 +102,7 @@ public class AsignaturaService {
         return toResponse(asignaturaRepository.save(asignatura));
     }
 
-    // ─── Eliminar ─────────────────────────────────────────────────────────
+    //Eliminar
     @Transactional
     public void eliminar(Long id) {
         asignaturaRepository.delete(obtenerOFallar(id));

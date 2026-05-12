@@ -21,6 +21,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import backend_escuela.usuario.entity.RolNombre;
+import backend_escuela.asignatura.repository.DocenteAsignaturaRepository;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
@@ -41,6 +46,19 @@ public class NotaService {
     private final PonderacionService ponderacionService;
     private final UsuarioRepository usuarioRepository;
     private final NotaExcelParser excelParser;
+    private final DocenteAsignaturaRepository dasRepository;
+
+    private void validarAccesoDocente(Long asignaturaId, Long seccionId) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated() && !auth.getPrincipal().equals("anonymousUser")) {
+            Usuario usuario = usuarioRepository.findByEmail(auth.getName()).orElse(null);
+            if (usuario != null && usuario.getRol() == RolNombre.DOCENTE) {
+                if (!dasRepository.existsByDocenteIdAndAsignaturaIdAndSeccionId(usuario.getId(), asignaturaId, seccionId)) {
+                    throw ApiException.forbidden("No tiene permisos sobre esta asignatura y sección");
+                }
+            }
+        }
+    }
 
     // ─── Crear nota manual ───────────────────────────────────────────────
     @Transactional
@@ -50,6 +68,8 @@ public class NotaService {
         Asignatura asignatura = asignaturaService.obtenerOFallar(request.getAsignaturaId());
         Seccion seccion    = seccionService.obtenerOFallar(request.getSeccionId());
         Usuario    docente    = obtenerDocenteOFallar(request.getDocenteId());
+
+        validarAccesoDocente(asignatura.getId(), seccion.getId());
 
         // Verificar que no exista ya esa nota
         notaRepository.findByAlumnoIdAndAsignaturaIdAndBimestreAndCicloLectivoAndTipoNota(
@@ -81,6 +101,7 @@ public class NotaService {
     public NotaResponseDto actualizar(Long id, NotaRequestDto request) {
 
         Nota nota = obtenerOFallar(id);
+        validarAccesoDocente(nota.getAsignatura().getId(), nota.getSeccion().getId());
         nota.setValor(request.getValor());
         nota.setTipoNota(request.getTipoNota());
         nota.setBimestre(request.getBimestre());
@@ -91,7 +112,9 @@ public class NotaService {
     // ─── Eliminar nota ────────────────────────────────────────────────────
     @Transactional
     public void eliminar(Long id) {
-        notaRepository.delete(obtenerOFallar(id));
+        Nota nota = obtenerOFallar(id);
+        validarAccesoDocente(nota.getAsignatura().getId(), nota.getSeccion().getId());
+        notaRepository.delete(nota);
     }
 
     // ─── Buscar por ID ────────────────────────────────────────────────────
@@ -148,6 +171,8 @@ public class NotaService {
         Seccion    seccion    = seccionService.obtenerOFallar(seccionId);
         Asignatura asignatura = asignaturaService.obtenerOFallar(asignaturaId);
         Usuario    docente    = obtenerDocenteOFallar(docenteId);
+
+        validarAccesoDocente(asignatura.getId(), seccion.getId());
 
         List<NotaExcelResultDto.FilaErrorDto> errores    = new ArrayList<>();
         List<Nota>                            notasAGuardar = new ArrayList<>();
@@ -252,6 +277,8 @@ public class NotaService {
 
             List<Nota> notasAsignatura = entry.getValue();
             String nombreAsignatura   = notasAsignatura.get(0).getAsignatura().getNombre();
+            Usuario docente = notasAsignatura.get(0).getDocente();
+
 
             // Agrupar por bimestre y calcular promedio ponderado de cada uno
             Map<String, BigDecimal> promediosBimestre = new LinkedHashMap<>();
@@ -288,6 +315,8 @@ public class NotaService {
                     .asignaturaNombre(nombreAsignatura)
                     .promediosPorBimestre(promediosBimestre)
                     .promedioFinal(promedioFinal)
+                    .docenteId(docente.getId())
+                    .docenteNombre(docente.getNombre() + " " + docente.getApellido())
                     .build());
         }
 

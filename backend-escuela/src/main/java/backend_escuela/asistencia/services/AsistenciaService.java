@@ -18,6 +18,12 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import backend_escuela.usuario.entity.RolNombre;
+import backend_escuela.shared.exception.ApiException;
+import backend_escuela.asignatura.repository.DocenteAsignaturaRepository;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,12 +37,26 @@ public class AsistenciaService {
     private final AlumnoService alumnoService;
     private final SeccionService seccionService;
     private final UsuarioRepository usuarioRepository;
+    private final DocenteAsignaturaRepository dasRepository;
+
+    private void validarAccesoDocenteASeccion(Long seccionId) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated() && !auth.getPrincipal().equals("anonymousUser")) {
+            Usuario usuario = usuarioRepository.findByEmail(auth.getName()).orElse(null);
+            if (usuario != null && usuario.getRol() == RolNombre.DOCENTE) {
+                if (!dasRepository.existsByDocenteIdAndSeccionId(usuario.getId(), seccionId)) {
+                    throw ApiException.forbidden("No tiene permisos sobre esta sección");
+                }
+            }
+        }
+    }
 
 
     @Transactional
     public AsistenciaAlumnoResponseDto registrarAsistenciaAlumno(AsistenciaAlumnoRequestDto request) {
         Alumno alumno = alumnoService.obtenerOFallar(request.getAlumnoId());
         Seccion seccion = seccionService.obtenerOFallar(request.getSeccionId());
+        validarAccesoDocenteASeccion(seccion.getId());
         AsistenciaAlumno asistencia = AsistenciaAlumno.builder()
                 .fecha(request.getFecha())
                 .estado(request.getEstado())
@@ -51,6 +71,7 @@ public class AsistenciaService {
 
     @Transactional
     public List<AsistenciaAlumnoResponseDto> listarAsistenciaAlumno(Long seccionId, LocalDate fecha) {
+        validarAccesoDocenteASeccion(seccionId);
         return asistenciaAlumnoRepository.findBySeccionIdAndFecha(seccionId, fecha).stream()
                 .map(a -> AsistenciaAlumnoResponseDto.builder()
                         .id(a.getId())
@@ -71,6 +92,14 @@ public class AsistenciaService {
 
         Usuario docente = usuarioRepository.findById(request.getDocenteId())
                 .orElseThrow(() -> new RuntimeException("Docente no encontrado"));
+                
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated() && !auth.getPrincipal().equals("anonymousUser")) {
+            Usuario currentUser = usuarioRepository.findByEmail(auth.getName()).orElse(null);
+            if (currentUser != null && currentUser.getRol() == RolNombre.DOCENTE && !currentUser.getId().equals(docente.getId())) {
+                throw ApiException.forbidden("No puede registrar asistencia para otro docente");
+            }
+        }
 
         AsistenciaDocente asistencia = new AsistenciaDocente();
         asistencia.setFecha(request.getFecha());
@@ -94,8 +123,19 @@ public class AsistenciaService {
     @Transactional
     public List<AsistenciaDocenteResponseDto> listarAsistenciaDocente(LocalDate fecha) {
 
-        return asistenciaDocenteRepository.findByFecha(fecha)
-                .stream()
+        List<AsistenciaDocente> asistencias = asistenciaDocenteRepository.findByFecha(fecha);
+        
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated() && !auth.getPrincipal().equals("anonymousUser")) {
+            Usuario currentUser = usuarioRepository.findByEmail(auth.getName()).orElse(null);
+            if (currentUser != null && currentUser.getRol() == RolNombre.DOCENTE) {
+                asistencias = asistencias.stream()
+                        .filter(a -> a.getDocente().getId().equals(currentUser.getId()))
+                        .collect(Collectors.toList());
+            }
+        }
+
+        return asistencias.stream()
                 .map(a -> AsistenciaDocenteResponseDto.builder()
                         .id(a.getId())
                         .fecha(a.getFecha())

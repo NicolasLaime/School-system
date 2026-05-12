@@ -1,5 +1,6 @@
 package backend_escuela.usuario.service;
 
+import backend_escuela.auth.dto.LoginRequestDTO;
 import backend_escuela.shared.exception.ApiException;
 import backend_escuela.usuario.dto.UsuarioRequestDTO;
 import backend_escuela.usuario.dto.UsuarioResponseDTO;
@@ -13,22 +14,30 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
+
 @Service
 @RequiredArgsConstructor
 public class UsuarioService {
 
-  private final UsuarioRepository usuarioRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final PasswordEncoder passwordEncoder;
 
     // ─── Crear ───────────────────────────────────────────────────────────
     @Transactional
-    public UsuarioResponseDTO crear(UsuarioRequestDTO request, Long creadorId) {
-
+    public UsuarioResponseDTO crear(UsuarioRequestDTO request) {
 
         if (request.getRol() == RolNombre.DOCENTE) {
-            if (creadorId == null) {
-                throw ApiException.forbidden("Se requiere un creadorId en el Header (X-Creador-Id) para crear un DOCENTE");
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
+                throw ApiException.forbidden("Se requiere estar autenticado para crear un DOCENTE");
             }
-            Usuario creador = obtenerOFallar(creadorId);
+            String currentUserEmail = authentication.getName();
+            Usuario creador = usuarioRepository.findByEmail(currentUserEmail)
+                    .orElseThrow(() -> ApiException.unauthorized("Usuario autenticado no encontrado"));
+            
             if (creador.getRol() != RolNombre.DIRECTIVO) {
                 throw ApiException.forbidden("Solo un DIRECTIVO puede crear DOCENTES");
             }
@@ -45,7 +54,7 @@ public class UsuarioService {
                 .nombre(request.getNombre())
                 .apellido(request.getApellido())
                 .email(request.getEmail())
-                .passwordHash(request.getPassword()) // ⚠️ Se hashea en el paso de Security
+                .password(passwordEncoder.encode(request.getPassword()))
                 .rol(request.getRol())
                 .activo(true)
                 .build();
@@ -128,23 +137,7 @@ public class UsuarioService {
     }
 
 
-    @Transactional
-    public UsuarioResponseDTO login(backend_escuela.auth.dto.LoginRequestDto request) {
 
-        // 1. Buscamos el usuario por su correo
-        Usuario usuario = usuarioRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> ApiException.unauthorized("Credenciales incorrectas (Email no encontrado)"));
-        // 2. Verificamos que esté activo
-        if (!usuario.getActivo()) {
-            throw ApiException.unauthorized("El usuario está desactivado");
-        }
-        // 3. Comparamos la contraseña (Ojo: esto es texto plano temporalmente)
-        if (!usuario.getPasswordHash().equals(request.getPassword())) {
-            throw ApiException.unauthorized("Credenciales incorrectas (Contraseña inválida)");
-        }
-        // 4. Si todo es correcto, devolvemos sus datos
-        return toResponse(usuario);
-    }
 
 
 

@@ -25,9 +25,8 @@ public class Controller {
     // POST /api/usuarios
     @PostMapping
     public ResponseEntity<ApiResponse<UsuarioResponseDTO>> crear(
-            @Valid @RequestBody UsuarioRequestDTO request,
-            @RequestHeader(value = "X-Creador-Id", required = false) Long creadorId) {
-        UsuarioResponseDTO creado = usuarioService.crear(request, creadorId);
+            @Valid @RequestBody UsuarioRequestDTO request) {
+        UsuarioResponseDTO creado = usuarioService.crear(request);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(ApiResponse.ok("Usuario creado correctamente", creado));

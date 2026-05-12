@@ -13,6 +13,13 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import backend_escuela.usuario.entity.Usuario;
+import backend_escuela.usuario.entity.RolNombre;
+import backend_escuela.usuario.repository.UsuarioRepository;
+import backend_escuela.asignatura.repository.DocenteAsignaturaRepository;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,6 +31,8 @@ public class HorarioService {
     private final HorarioRepository horarioRepository;
     private final AsignaturaService asignaturaService;
     private final SeccionService seccionService;
+    private final UsuarioRepository usuarioRepository;
+    private final DocenteAsignaturaRepository dasRepository;
 
 
     @Transactional
@@ -45,6 +54,19 @@ public class HorarioService {
 
     @Transactional
     public List<HorarioResponseDto> listarTodos() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated() && !auth.getPrincipal().equals("anonymousUser")) {
+            Usuario usuario = usuarioRepository.findByEmail(auth.getName()).orElse(null);
+            if (usuario != null && usuario.getRol() == RolNombre.DOCENTE) {
+                // Filtrar horarios
+                return horarioRepository.findAll().stream()
+                        .filter(h -> dasRepository.existsByDocenteIdAndAsignaturaIdAndSeccionId(
+                                usuario.getId(), h.getAsignatura().getId(), h.getSeccion().getId()
+                        ))
+                        .map(this::toResponse)
+                        .collect(Collectors.toList());
+            }
+        }
         return horarioRepository.findAll().stream().map(this::toResponse).collect(Collectors.toList());
     }
 
