@@ -18,7 +18,7 @@ export interface Ponderacion {
   id: string;
   ciclo: 'PRIMARIA' | 'SECUNDARIA';
   bimestre: Bimestre;
-  peso: number; // porcentaje (ej: 0.25)
+  peso: number;
 }
 
 export interface NotaParcial {
@@ -29,3 +29,88 @@ export interface NotaParcial {
   materia?: Materia;
 }
 
+export interface CreateNotaRequest {
+  alumnoId: number;
+  asignaturaId: number;
+  seccionId: number;
+  bimestre: string;
+  cicloLectivo: string;
+  tipoNota: string;
+  valor: number;
+  docenteId: number;
+}
+
+export interface NotaDetail {
+  id: number;
+  valor: number;
+  tipoNota: string;
+  bimestre: string;
+  cicloLectivo: string;
+  fechaRegistro: string;
+  alumnoId: number;
+  alumnoCodigo: string;
+  alumnoNombre: string;
+  alumnoApellido: string;
+  asignaturaId: number;
+  asignaturaNombre: string;
+  seccionId: number;
+  seccionNombre: string;
+  docenteId: number;
+  docenteNombre: string;
+}
+
+export interface NotaData {
+  id: string;
+  alumnoId: number;
+  asignaturaId: number;
+  seccionId: number;
+  bimestre: string;
+  cicloLectivo: string;
+  tipoNota: string;
+  valor: number;
+  docenteId: number;
+  createdAt: string;
+  updatedAt: string;
+  alumnoNombre?: string;
+  alumnoApellido?: string;
+  asignaturaNombre?: string;
+}
+
+export interface NotasResponse {
+  success?: boolean;
+  message: string;
+  data: NotaDetail[];
+  error?: string;
+}
+
+export interface NotaResponse {
+  success?: boolean;
+  message: string;
+  data: NotaData;
+  error?: string;
+}
+
+export interface NotaResumenAsignatura {
+  asignaturaId: number;
+  asignaturaNombre: string;
+  promediosPorBimestre: Record<string, number>;
+  promedioFinal: number;
+}
+
+export interface NotaResumenData {
+  alumnoId: number;
+  alumnoCodigo: string;
+  alumnoNombre: string;
+  alumnoApellido: string;
+  seccionNombre: string;
+  gradoNombre: string;
+  cicloLectivo: string;
+  asignaturas: NotaResumenAsignatura[];
+  promedioGeneral: number;
+}
+
+export interface NotaResumenResponse {
+  success: boolean;
+  message: string;
+  data: NotaResumenData;
+}

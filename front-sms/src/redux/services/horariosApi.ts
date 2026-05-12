@@ -21,12 +21,12 @@ export const horariosApi = createApi({
   tagTypes: ["Horarios"],
   endpoints: (builder) => ({
     getHorarios: builder.query<HorariosResponse, void>({
-      query: () => "/horarios",
+      query: () => "/api/horarios",
       providesTags: [{ type: "Horarios", id: "LIST" }],
     }),
 
     getHorarioById: builder.query<HorarioResponse, string>({
-      query: (id) => `/horarios/${id}`,
+      query: (id) => `/api/horarios/${id}`,
       providesTags: (result, error, id) => [{ type: "Horarios", id }],
     }),
 
@@ -41,7 +41,7 @@ export const horariosApi = createApi({
       query: (data) => {
         console.log("data", data);
         return {
-          url: "/horarios",
+          url: "/api/horarios",
           method: "POST",
           body: data,
         }
@@ -60,7 +60,7 @@ export const horariosApi = createApi({
       }>;
     }>({
       query: ({ id, data }) => ({
-        url: `/horarios/${id}`,
+        url: `/api/horarios/${id}`,
         method: "PUT",
         body: data,
       }),
@@ -72,7 +72,7 @@ export const horariosApi = createApi({
 
     deleteHorario: builder.mutation<HorarioResponse, string>({
       query: (id) => ({
-        url: `/horarios/${id}`,
+        url: `/api/horarios/${id}`,
         method: "DELETE",
       }),
       invalidatesTags: [{ type: "Horarios", id: "LIST" }],

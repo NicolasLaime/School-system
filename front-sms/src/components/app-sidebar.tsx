@@ -30,7 +30,7 @@ import { useSelector } from "react-redux"
 import { selectUserLogin } from "@/redux/features/userSlice"
 import { LucideIcon } from "lucide-react"
 
-type UserRole = 'ADMIN' | 'DOCENTE' | 'DIRECTIVO';
+type UserRole = 'ROLE_ADMIN' | 'ROLE_DOCENTE' | 'ROLE_DIRECTIVO' | 'ROLE_SUPERADMIN';
 
 interface NavItem {
   title: string;
@@ -54,7 +54,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   console.log("User Login in Sidebar:", userLogin);
 
-  const userRole = userLogin?.rol || "ADMIN";
+  const userRole = userLogin?.role || "ROLE_ADMIN";
 
 const fullNav: NavSection[] = [
   {
@@ -67,22 +67,22 @@ const fullNav: NavSection[] = [
     title: "Clases",
     url: "/dashboard/clases",
     icon: BookOpen,
-    rol: ["ADMIN", "DIRECTIVO", "DOCENTE"],
+    rol: ["ROLE_ADMIN", "ROLE_DIRECTIVO", "ROLE_DOCENTE"],
     items: [
       { 
         title: "Listado de clases", 
         url: "/dashboard/clases",
-        rol: ["ADMIN", "DIRECTIVO"],
+        rol: ["ROLE_ADMIN", "ROLE_DIRECTIVO"],
       },
       { 
         title: "Mis Clases", 
         url: "/dashboard/clases/mis-clases",
-        rol: ["ADMIN", "DIRECTIVO", "DOCENTE"],
+        rol: ["ROLE_ADMIN", "ROLE_DIRECTIVO", "ROLE_DOCENTE"],
       },
       { 
         title: "Nueva clase", 
         url: "/dashboard/clases/nueva",
-        rol: ["ADMIN", "DIRECTIVO"],
+        rol: ["ROLE_ADMIN", "ROLE_DIRECTIVO"],
       }
     ],
   },
@@ -90,21 +90,21 @@ const fullNav: NavSection[] = [
     title: "Asignaturas",
     url: "/dashboard/materias",
     icon: ClipboardList,
-    rol: ["ADMIN", "DIRECTIVO", "DOCENTE"],
+    rol: ["ROLE_ADMIN", "ROLE_DIRECTIVO", "ROLE_DOCENTE"],
     items: [
       { title: "Listado de asignaturas", 
         url: "/dashboard/materias",
-        rol: ["ADMIN", "DIRECTIVO"],
+        rol: ["ROLE_ADMIN", "ROLE_DIRECTIVO"],
       },
       {
         title: "Mis asignaturas",
         url: "/dashboard/materias/mis-materias",
-        rol: ["ADMIN", "DIRECTIVO", "DOCENTE"],
+        rol: ["ROLE_ADMIN", "ROLE_DIRECTIVO", "ROLE_DOCENTE"],
       },
       {
         title: "Nueva asignatura",
         url: "/dashboard/materias/nueva",
-        rol: ["ADMIN", "DIRECTIVO"],
+        rol: ["ROLE_ADMIN", "ROLE_DIRECTIVO"],
       }
       ],
   },
@@ -112,7 +112,7 @@ const fullNav: NavSection[] = [
     title: "Ciclos",
     url: "/dashboard/ciclos",
     icon: CalendarRange,
-    rol: ["ADMIN", "DIRECTIVO"],
+    rol: ["ROLE_ADMIN", "ROLE_DIRECTIVO"],
     items: [{ 
       title: "Listado de ciclos", 
       url: "/dashboard/ciclos" },
@@ -125,7 +125,7 @@ const fullNav: NavSection[] = [
     title: "Grados",
     url: "/dashboard/grados",
     icon: GraduationCap,
-    rol: ["ADMIN", "DIRECTIVO"],
+    rol: ["ROLE_ADMIN", "ROLE_DIRECTIVO"],
     items: [{ 
       title: "Listado de grados", 
       url: "/dashboard/grados" },
@@ -138,7 +138,7 @@ const fullNav: NavSection[] = [
     title: "Secciones",
     url: "/dashboard/secciones",
     icon: ClipboardList,
-    rol: ["ADMIN", "DIRECTIVO"],
+    rol: ["ROLE_ADMIN", "ROLE_DIRECTIVO"],
     items: [{ 
       title: "Listado de secciones", 
       url: "/dashboard/secciones" },
@@ -151,7 +151,7 @@ const fullNav: NavSection[] = [
     title: "Horarios",
     url: "/dashboard/horarios",
     icon: CalendarRange,
-    rol: ["ADMIN", "DIRECTIVO"],
+    rol: ["ROLE_ADMIN", "ROLE_DIRECTIVO"],
     items: [{ 
       title: "Listado de horarios", 
       url: "/dashboard/horarios" },
@@ -164,7 +164,7 @@ const fullNav: NavSection[] = [
     title: "Asistencias",
     url: "/dashboard/asistencias",
     icon: CalendarCheck,
-    rol: ["ADMIN", "DIRECTIVO", "DOCENTE"],
+    rol: ["ROLE_ADMIN", "ROLE_DIRECTIVO", "ROLE_DOCENTE"],
     items: [{ 
       title: "Listado de asistencias", 
       url: "/dashboard/asistencias" },
@@ -181,7 +181,7 @@ const fullNav: NavSection[] = [
     title: "Ponderaciones",
     url: "/dashboard/ponderaciones",
     icon: Percent,
-    rol: ["ADMIN", "DIRECTIVO"],
+    rol: ["ROLE_ADMIN", "ROLE_DIRECTIVO"],
     items: [{ 
       title: "Listado de ponderaciones", 
       url: "/dashboard/ponderaciones" },
@@ -194,7 +194,7 @@ const fullNav: NavSection[] = [
     title: "Usuarios",
     url: "/dashboard/usuarios",
     icon: Users,
-    rol: ["ADMIN", "DIRECTIVO"],
+    rol: ["ROLE_ADMIN", "ROLE_DIRECTIVO"],
     items: [{ 
       title: "Listado de usuarios", 
       url: "/dashboard/usuarios" },
@@ -211,7 +211,7 @@ const fullNav: NavSection[] = [
     title: "Alumnos",
     url: "/dashboard/alumnos",
     icon: GraduationCap,
-    rol: ["ADMIN", "DIRECTIVO", "DOCENTE"],
+    rol: ["ROLE_ADMIN", "ROLE_DIRECTIVO", "ROLE_DOCENTE"],
     items: [{ 
       title: "Listado de alumnos", 
       url: "/dashboard/alumnos" },
@@ -221,17 +221,30 @@ const fullNav: NavSection[] = [
     }],
   },
   {
+    title: "Notas",
+    url: "/dashboard/notas",
+    icon: ClipboardList,
+    rol: ["ROLE_ADMIN", "ROLE_DIRECTIVO", "ROLE_DOCENTE"],
+    items: [{
+      title: "Listado de notas",
+      url: "/dashboard/notas"
+    }, {
+      title: "Nueva nota",
+      url: "/dashboard/notas/nuevo"
+    }],
+  },
+  {
     title: "Notices",
     url: "/dashboard/notices",
     icon: FileText,
-    rol: ["ADMIN", "DIRECTIVO", "DOCENTE"],
+    rol: ["ROLE_ADMIN", "ROLE_DIRECTIVO", "ROLE_DOCENTE"],
     items: [{ title: "Comunicados", url: "/dashboard/notices" }],
   },
   {
     title: "Complains",
     url: "/dashboard/complains",
     icon: AlertCircle,
-    rol: ["ADMIN", "DIRECTIVO"],
+    rol: ["ROLE_ADMIN", "ROLE_DIRECTIVO"],
     items: [{ title: "Reclamos", url: "/dashboard/complains" }],
   },
   {
@@ -263,7 +276,7 @@ const data = {
    user: {
       name: userLogin?.nombre || "Shadcn",
       email: userLogin?.email || "m@example.com",
-      rol: userLogin?.rol || "SUPERADMIN",
+      rol: userLogin?.role || "ROLE_SUPERADMIN",
       avatar:
         userLogin?.avatar || "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y",
   },

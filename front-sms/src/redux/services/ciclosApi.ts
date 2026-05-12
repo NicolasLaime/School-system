@@ -21,18 +21,18 @@ export const ciclosApi = createApi({
   tagTypes: ["Ciclos"],
   endpoints: (builder) => ({
     getCiclos: builder.query<CiclosResponse, void>({
-      query: () => "/ciclos",
+      query: () => "/api/ciclos",
       providesTags: [{ type: "Ciclos", id: "LIST" }],
     }),
 
     getCicloById: builder.query<CicloResponse, string>({
-      query: (id) => `/ciclos/${id}`,
+      query: (id) => `/api/ciclos/${id}`,
       providesTags: (result, error, id) => [{ type: "Ciclos", id }],
     }),
 
     createCiclo: builder.mutation<CicloResponse, { nombre: string }>({
       query: (data) => ({
-        url: "/ciclos",
+        url: "/api/ciclos",
         method: "POST",
         body: data,
       }),
@@ -41,7 +41,7 @@ export const ciclosApi = createApi({
 
     updateCiclo: builder.mutation<CicloResponse, { id: string; data: Partial<Ciclo> }>({
       query: ({ id, data }) => ({
-        url: `/ciclos/${id}`,
+        url: `/api/ciclos/${id}`,
         method: "PUT",
         body: data,
       }),
@@ -53,7 +53,7 @@ export const ciclosApi = createApi({
 
     deleteCiclo: builder.mutation<CicloResponse, string>({
       query: (id) => ({
-        url: `/ciclos/${id}`,
+        url: `/api/ciclos/${id}`,
         method: "DELETE",
       }),
       invalidatesTags: [{ type: "Ciclos", id: "LIST" }],

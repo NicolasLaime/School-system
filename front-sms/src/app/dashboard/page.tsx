@@ -14,7 +14,7 @@ const Page = () => {
   console.log("userLogin", userLogin)
   return (
     <div>
-         { userLogin?.rol === "DOCENTE" ? <DocenteHome /> : <HomeAdmin /> }
+         { userLogin?.role === "ROLE_DOCENTE" ? <DocenteHome /> : <HomeAdmin /> }
     </div>
   )
 }

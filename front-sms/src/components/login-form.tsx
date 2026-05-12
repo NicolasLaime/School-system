@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import Image from "next/image"
 import { useDispatch } from "react-redux"
 import { useRouter } from "next/navigation"
 import { useLoginMutation } from "@/redux/services/authApi"
@@ -12,13 +11,25 @@ import { useState } from "react"
 import { toast } from "sonner"
 import { loginSlice } from "@/redux/features/userSlice"
 import { ApiError } from "../../types/RootState"
+import { jwtDecode } from "jwt-decode";
+
+
+interface JwtPayload {
+  sub: string;      // email
+  role: string;     // "ROLE_DIRECTIVO"
+  iss: string;
+  iat: number;
+  exp: number;
+  jti: string;
+  nbf: number;
+}
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
 
-    const router = useRouter();
+  const router = useRouter();
   const dispatch = useDispatch();
   const [login, { isLoading }] = useLoginMutation();
   const [errorMessage, setErrorMessage] = useState("");
@@ -29,111 +40,124 @@ export function LoginForm({
   });
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const { email, password } = loginData;
-    console.log("Login data:", email, password);
-    try {
-      if (email && password) {
-        const response = await login({ email, password }).unwrap(); // <-- importante
-        console.log("Response login:", response);
-        const user = response.data;
-        const accessToken = response.accessToken;
+  e.preventDefault();
+  const { email, password } = loginData;
+  try {
+    if (email && password) {
+      const response = await login({ email, password }).unwrap();
+      const token = response.token; // <-- ahora solo viene el token
 
-     
-        
-        if (user) {
-          dispatch(loginSlice({ userLogin: user, accessToken }));
-          toast("Bienvenido " + user.nombre, {
-            position: "top-center",
-            action: {
-              label: "Ir al dashboard",
-              onClick: () => router.push("/dashboard"),
-            },
-          });
-          setErrorMessage("");
-        } else {
-          setErrorMessage("No se pudo obtener la información del usuario");
-        }
-      } else {
-        setErrorMessage("Por favor, rellene todos los campos");
-      }
-    } catch (err) {
-      // el catch ahora sí se ejecutará
-      const errorMsg =
-        (err as ApiError)?.data?.message ||
-        (err instanceof Error ? err.message : "Error inesperado");
-      setErrorMessage(errorMsg);
+      // Decodificás el token para obtener los datos del usuario
+      const decoded = jwtDecode<JwtPayload>(token);
+
+      dispatch(loginSlice({ 
+        userLogin: {
+          email: decoded.sub,
+          role: decoded.role,
+        }, 
+        accessToken: token 
+      }));
+
+      toast("Bienvenido", { position: "top-center" });
+      router.push("/dashboard");
+      setErrorMessage("");
     }
-  };
+  } catch (err) {
+    const errorMsg =
+      (err as ApiError)?.data?.message ||
+      (err instanceof Error ? err.message : "Error inesperado");
+    setErrorMessage(errorMsg);
+  }
+};
 
 
 
   return (
-    <div className={cn("flex flex-col gap-6 w-[60vw]  h-[70vh]", className)} {...props}>
-      <Card className="overflow-hidden p-0">
-        <CardContent className="grid p-0 md:grid-cols-2">
-          <form className="p-6 md:p-8" onSubmit={handleSubmit}>
-            <div className="flex flex-col gap-6">
-              <div className="flex flex-col items-center text-center">
-                <h1 className="text-2xl font-bold">Welcome back</h1>
-                <p className="text-muted-foreground text-balance">
-                  Login to your Acme Inc account
-                </p>
-              </div>
-              <div className="grid gap-3">
-                <Label htmlFor="email">Email</Label>
+    <div className={cn("flex flex-col gap-8 w-full max-w-[400px]", className)} {...props}>
+      <Card className="overflow-hidden border border-border/40 bg-card shadow-2xl shadow-black/5 rounded-2xl">
+        <CardContent className="p-8 md:p-10">
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            <div className="space-y-2 text-center">
+              <h1 className="text-3xl font-semibold tracking-tight">Bienvenido</h1>
+              <p className="text-sm text-muted-foreground">
+                Ingresa tus credenciales para acceder al portal
+              </p>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-sm font-medium">Email</Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="m@example.com"
+                  placeholder="nombre@colegio.com"
                   required
                   value={loginData.email}
                   onChange={(e) =>
-                      setLoginData({ ...loginData, email: e.target.value })
-                    }
+                    setLoginData({ ...loginData, email: e.target.value })
+                  }
+                  className="h-11 bg-muted/30 border-none focus-visible:ring-1 focus-visible:ring-primary/50 transition-all"
                 />
               </div>
-              <div className="grid gap-3">
-                <div className="flex items-center">
-                  <Label htmlFor="password">Password</Label>
+              
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password" title="password" className="text-sm font-medium">Contraseña</Label>
                   <a
                     href="#"
-                    className="ml-auto text-sm underline-offset-2 hover:underline"
+                    className="text-xs text-primary hover:underline underline-offset-4"
                   >
-                    Forgot your password?
+                    ¿Olvidaste tu contraseña?
                   </a>
                 </div>
                 <Input
-                    id="password"
-                    type="password"
-                    value={loginData.password}
-                    onChange={(e) =>
-                      setLoginData({ ...loginData, password: e.target.value })
-                    }
-                    required
-                  />
+                  id="password"
+                  type="password"
+                  value={loginData.password}
+                  onChange={(e) =>
+                    setLoginData({ ...loginData, password: e.target.value })
+                  }
+                  required
+                  className="h-11 bg-muted/30 border-none focus-visible:ring-1 focus-visible:ring-primary/50 transition-all"
+                />
               </div>
-              <Button type="submit" className="w-full">
-                {isLoading ? "Cargando..." : "Login"}
-              </Button>
             </div>
+
+            <Button 
+              type="submit" 
+              className="w-full h-11 text-sm font-medium transition-all hover:opacity-90 active:scale-[0.98]"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <span className="flex items-center gap-2">
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                  Cargando...
+                </span>
+              ) : "Iniciar sesión"}
+            </Button>
+
             {errorMessage && (
-              <p className="mt-4 text-center text-sm text-red-600">
-                {errorMessage}
-              </p>
+              <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20">
+                <p className="text-xs text-center text-destructive font-medium">
+                  {errorMessage}
+                </p>
+              </div>
             )}
           </form>
-          <div className="bg-muted relative hidden md:block">
-            <Image
-              src="/fondoLogin.jpg"
-              width={500}
-              height={500}
-              alt="Image"
-              className="absolute inset-0 h-full w-full object-cover"
-            />
-          </div>
         </CardContent>
       </Card>
+      
+      <p className="px-8 text-center text-xs text-muted-foreground">
+        Al iniciar sesión, aceptas nuestros{" "}
+        <a href="#" className="underline underline-offset-4 hover:text-primary">
+          Términos de servicio
+        </a>{" "}
+        y{" "}
+        <a href="#" className="underline underline-offset-4 hover:text-primary">
+          Política de privacidad
+        </a>.
+      </p>
     </div>
+
   )
 }
