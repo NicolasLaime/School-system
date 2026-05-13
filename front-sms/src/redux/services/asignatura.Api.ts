@@ -45,7 +45,7 @@ export const materiasApi = createApi({
     });
 
     // Traer asignaturas por docente
-    const getAsignaturasByDocente = builder.query<AsignaturasResponse, string>({
+    const getAsignaturasByDocente = builder.query<AsignaturasResponse, number>({
       query: (docenteId) => `/api/asignaturas/docente/${docenteId}`,
       providesTags: (result, error, docenteId) => [{ type: "Asignaturas", id: `DOCENTE_${docenteId}` }],
     });

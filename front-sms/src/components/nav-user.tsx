@@ -47,16 +47,12 @@ export function NavUser({
 
 
   const routes = useRouter();
-  const dispatch = useDispatch();
-  const [logout] = useLogoutMutation();
+  const dispatch = useDispatch()
 
   const Handlerlogout = async () => {
     try {
-      const response = await logout();
-      if (response?.data) {
         dispatch(logoutUser());
         routes.push("/login");
-      }
     } catch (error) {
       console.error("Error during logout:", error);
     }

@@ -1,4 +1,5 @@
 "use client"
+import { skipToken } from '@reduxjs/toolkit/query'
 import { selectUserLogin } from '@/redux/features/userSlice'
 import React from 'react'
 import { useSelector } from 'react-redux'
@@ -11,7 +12,7 @@ const MainMisClases = () => {
 
     const userLogin = useSelector(selectUserLogin)
 
-   const { data, isLoading, isError } = useGetAsignaturasByDocenteQuery(userLogin?.id)
+   const { data, isLoading, isError } = useGetAsignaturasByDocenteQuery(userLogin?.userId ?? skipToken)
 
 
    
