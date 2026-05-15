@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 interface UserState {
-  userLogin: { email: string; role: string } | null;
+  userLogin: { email: string; role: string; userId: number  } | null;
   usertoken: string | null;
 }
 

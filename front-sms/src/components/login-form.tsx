@@ -17,6 +17,7 @@ import { jwtDecode } from "jwt-decode";
 interface JwtPayload {
   sub: string;      // email
   role: string;     // "ROLE_DIRECTIVO"
+  userId: number    // user id
   iss: string;
   iat: number;
   exp: number;
@@ -49,11 +50,13 @@ export function LoginForm({
 
       // Decodificás el token para obtener los datos del usuario
       const decoded = jwtDecode<JwtPayload>(token);
+      console.log("decoded", decoded)
 
       dispatch(loginSlice({ 
         userLogin: {
           email: decoded.sub,
           role: decoded.role,
+          userId: decoded.userId
         }, 
         accessToken: token 
       }));
