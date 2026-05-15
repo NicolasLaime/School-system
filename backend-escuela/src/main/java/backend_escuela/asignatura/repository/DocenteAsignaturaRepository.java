@@ -29,6 +29,9 @@ public interface DocenteAsignaturaRepository extends JpaRepository<DocenteAsigna
             Long docenteId, Long asignaturaId, Long seccionId
     );
 
+    List<DocenteAsignaturaSeccion> findByAsignaturaId(Long asignaturaId);
+
+
     // Todas las asignaturas que dicta un docente (con JOIN para traer datos)
     @Query("""
         SELECT das FROM DocenteAsignaturaSeccion das

@@ -173,14 +173,37 @@ public class AsignaturaService {
                 .orElseThrow(() -> ApiException.notFound("Asignatura con código " + codigo + " no encontrada"));
         return toResponse(asignatura);
     }
+
+
     @Transactional
     public List<AsignaturaResponseDto> listarConDocenteAsociado() {
         return asignaturaRepository.findConDocenteAsociado()
                 .stream()
-                .map(this::toResponse)
+                .map(a -> {
+                    List<DocenteAsignaturaSeccion> dasList = dasRepository.findByAsignaturaId(a.getId());
+                    Long   docenteId = null;
+                    String docenteNombre = "";
+                    String docenteApellido = "";
+                    if (!dasList.isEmpty()) {
+                        docenteId = dasList.get(0).getDocente().getId();
+                        docenteNombre = dasList.get(0).getDocente().getNombre();
+                        docenteApellido = dasList.get(0).getDocente().getApellido();
+                    }
+                    return AsignaturaResponseDto.builder()
+                            .id(a.getId())
+                            .nombre(a.getNombre())
+                            .codigo(a.getCodigo())
+                            .gradoId(a.getGrado().getId())
+                            .gradoNombre(a.getGrado().getNombre())
+                            .cicloEducativoId(a.getGrado().getCicloEducativo().getId())
+                            .cicloEducativoNombre(a.getGrado().getCicloEducativo().getNombre())
+                            .docenteId(docenteId)
+                            .docenteNombre(docenteNombre)
+                            .docenteApellido(docenteApellido)
+                            .build();
+                })
                 .collect(Collectors.toList());
     }
-
 
 
 
@@ -220,6 +243,19 @@ public class AsignaturaService {
                 .build();
     }
 
+    private AsignaturaResponseDto toResponseConDocentes(
+            Asignatura a, List<DocenteAsignaturaResponseDto> docentes) {
+        return AsignaturaResponseDto.builder()
+                .id(a.getId())
+                .nombre(a.getNombre())
+                .codigo(a.getCodigo())
+                .gradoId(a.getGrado().getId())
+                .gradoNombre(a.getGrado().getNombre())
+                .cicloEducativoId(a.getGrado().getCicloEducativo().getId())
+                .cicloEducativoNombre(a.getGrado().getCicloEducativo().getNombre())
+                .docentes(docentes)
+                .build();
+    }
 
 
 

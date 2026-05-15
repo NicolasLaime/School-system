@@ -3,6 +3,8 @@ package backend_escuela.asignatura.dto;
 
 import lombok.*;
 
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -22,6 +24,15 @@ public class AsignaturaResponseDto {
 
     private Long   cicloEducativoId;
     private String cicloEducativoNombre;
+
+    private Long   docenteId;
+    private String docenteNombre;
+    private String docenteApellido;
+
+    private List<DocenteAsignaturaResponseDto> docentes;
+
+
+
 
 
 
