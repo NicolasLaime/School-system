@@ -15,7 +15,7 @@ const MainMisClases = () => {
    const { data, isLoading, isError } = useGetAsignaturasByDocenteQuery(userLogin?.userId ?? skipToken)
 
 
-   
+   console.log("dataaa", data)
 
    if (isLoading)
     return (

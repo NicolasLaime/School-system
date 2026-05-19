@@ -15,6 +15,26 @@ interface AsignaturaResponse {
   error?: string;
 }
 
+export interface AsignaturasConDocentesResponse {
+  message: string;
+  error?: string;
+  "data": [
+    {
+      id: number;
+      nombre: string;
+      codigo: string;
+      gradoId: number;
+      gradoNombre: string;
+      cicloEducativoId: number;
+      cicloEducativoNombre: string;
+      docenteId: number;
+      docenteNombre: string;
+      docenteApellido: string;
+      docentes: string | null;
+    }
+  ]
+}
+
 export const materiasApi = createApi({
   reducerPath: "asignaturaApi",
   baseQuery: baseQueryWithReauth,
@@ -129,6 +149,13 @@ export const materiasApi = createApi({
       invalidatesTags: [{ type: "Asignaturas", id: "LIST" }],
     });
 
+    //asignaturas con docentes
+
+    const getAsignaturasConDocentes = builder.query<AsignaturasConDocentesResponse, void>({
+      query: () => "/api/asignaturas/con-docentes",
+      providesTags: [{ type: "Asignaturas", id: "LIST" }],
+    });
+
     return {
       getAsignaturas,
       getAsignaturaById,
@@ -140,6 +167,7 @@ export const materiasApi = createApi({
       deleteAsignatura,
       asignarDocente,
       desasignarDocente,
+      getAsignaturasConDocentes,
     };
   },
 });
@@ -156,4 +184,5 @@ export const {
   useDeleteAsignaturaMutation,
   useAsignarDocenteMutation,
   useDesasignarDocenteMutation,
+  useGetAsignaturasConDocentesQuery,
 } = materiasApi;
