@@ -4,12 +4,12 @@ import React from 'react'
 import { DataTable } from './data-table'
 import { getColumns } from './columns'
 import { Loader2 } from 'lucide-react'
-import { useGetAsignaturasQuery } from '@/redux/services/asignatura.Api'
+import { useGetAsignaturasConDocentesQuery } from '@/redux/services/asignatura.Api'
 
 const MainAllClases = () => {
 
 
-   const { data, isLoading, isError } = useGetAsignaturasQuery()
+   const { data, isLoading, isError } = useGetAsignaturasConDocentesQuery()
 
 
    

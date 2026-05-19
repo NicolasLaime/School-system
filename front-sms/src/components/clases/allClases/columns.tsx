@@ -12,9 +12,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Checkbox } from "@/components/ui/checkbox";
 import Link from "next/link";
-import { AsignaturaEdit } from "../../../../types/materia.types";
+import { AsignaturasConDocentesResponse } from "@/redux/services/asignatura.Api";
 
-export const getColumns = (): ColumnDef<AsignaturaEdit>[] => [
+type ClaseRow = AsignaturasConDocentesResponse["data"][number];
+
+export const getColumns = (): ColumnDef<ClaseRow>[] => [
   {
     id: "select",
     header: ({ table }) => (
@@ -36,7 +38,7 @@ export const getColumns = (): ColumnDef<AsignaturaEdit>[] => [
     ),
     enableSorting: false,
     enableHiding: false,
-    enableGlobalFilter: false, // No buscar en esta columna
+    enableGlobalFilter: false,
   },
   {
     accessorKey: "id",
@@ -51,62 +53,44 @@ export const getColumns = (): ColumnDef<AsignaturaEdit>[] => [
         </Button>
       );
     },
-    enableGlobalFilter: true, // ✅ Hacer buscable
+    enableGlobalFilter: true,
   },
-  { 
-    id: "anioLectivo",
-    accessorKey: "anioLectivo", // ✅ Agregar accessorKey
-    header: "Año Lectivo",
-    enableGlobalFilter: true, // ✅ Hacer buscable
+  {
+    accessorKey: "codigo",
+    header: "Codigo",
+    enableGlobalFilter: true,
     cell: ({ row }) => (
       <span className="text-center flex items-center justify-center">
-        {row.original.anioLectivo}
+        {row.original.codigo}
       </span>
     ),
   },
   {
-    id: "docenteNombre",
-    accessorFn: (row) => row.docente?.nombre ?? "", // ✅ Usar accessorFn
-    header: "Docente",
-    enableGlobalFilter: true, // ✅ Hacer buscable
-    cell: ({ row }) => (
-      <span>{row.original.docente?.nombre ?? "-"}</span>
-    ),
-  },
-  {
-    id: "docenteEmail",
-    accessorFn: (row) => row.docente?.email ?? "", // ✅ Usar accessorFn
-    header: "Email",
-    enableGlobalFilter: true, // ✅ Hacer buscable
-    cell: ({ row }) => (
-      <span>{row.original.docente?.email ?? "-"}</span>
-    ),
-  },
-  {
-    id: "materiaNombre",
-    accessorFn: (row) => row.materia?.nombre ?? "", // ✅ Usar accessorFn
     header: "Materia",
-    enableGlobalFilter: true, // ✅ Hacer buscable
+    enableGlobalFilter: true,
     cell: ({ row }) => (
-      <span>{row.original.materia?.nombre ?? "-"}</span>
+      <span>{row.original.nombre || "-"}</span>
     ),
   },
   {
-    id: "materiaCiclo",
-    accessorFn: (row) => row.materia?.ciclo ?? "", // ✅ Usar accessorFn
+    header: "Grado",
+    enableGlobalFilter: true,
+    cell: ({ row }) => (
+      <span>{row.original.gradoNombre || "-"}</span>
+    ),
+  },
+  {
     header: "Ciclo",
-    enableGlobalFilter: true, // ✅ Hacer buscable
+    enableGlobalFilter: true,
     cell: ({ row }) => (
-      <span>{row.original.materia?.ciclo ?? "-"}</span>
+      <span>{row.original.cicloEducativoNombre || "-"}</span>
     ),
   },
   {
-    id: "materiaCodigo",
-    accessorFn: (row) => row.materia?.codigo ?? "", // ✅ Usar accessorFn
-    header: "Código",
-    enableGlobalFilter: true, // ✅ Hacer buscable
+    header: "Docente",
+    enableGlobalFilter: true,
     cell: ({ row }) => (
-      <span>{row.original.materia?.codigo ?? "-"}</span>
+      <span>{`${row.original.docenteNombre} ${row.original.docenteApellido}`.trim() || "-"}</span>
     ),
   },
   {
@@ -124,7 +108,7 @@ export const getColumns = (): ColumnDef<AsignaturaEdit>[] => [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Acciones</DropdownMenuLabel>
             <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(clase.id)}
+              onClick={() => navigator.clipboard.writeText(String(clase.id))}
             >
               Copiar ID
             </DropdownMenuItem>
@@ -138,6 +122,6 @@ export const getColumns = (): ColumnDef<AsignaturaEdit>[] => [
         </DropdownMenu>
       );
     },
-    enableGlobalFilter: false, // No buscar en acciones
+    enableGlobalFilter: false,
   },
 ];
