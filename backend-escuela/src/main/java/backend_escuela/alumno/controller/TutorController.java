@@ -27,15 +27,26 @@ public class TutorController {
                 .body(ApiResponse.ok("Tutor creado", tutorService.crear(request)));
     }
 
-    @GetMapping("/alumno/{alumnoId}")
-    public ResponseEntity<ApiResponse<List<TutorResponseDto>>> listarPorAlumno(@PathVariable Long alumnoId) {
+    @GetMapping("/alumno/{codigo}")
+    public ResponseEntity<ApiResponse<List<TutorResponseDto>>> listarPorCodigoAlumno(
+            @PathVariable String codigo) {
         return ResponseEntity.ok(
-                ApiResponse.ok("Tutores del alumno", tutorService.listarPorAlumno(alumnoId)));
+                ApiResponse.ok("Tutores del alumno", tutorService.listarPorCodigoAlumno(codigo)));
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> eliminar(@PathVariable Long id) {
+        tutorService.eliminar(id);
+        return ResponseEntity.ok(ApiResponse.ok("Tutor eliminado correctamente"));
+    }
 
-
-
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<TutorResponseDto>> actualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody TutorRequestDto request) {
+        return ResponseEntity.ok(
+                ApiResponse.ok("Tutor actualizado correctamente", tutorService.actualizar(id, request)));
+    }
 
 
 
