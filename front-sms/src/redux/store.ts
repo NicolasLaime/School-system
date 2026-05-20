@@ -18,6 +18,7 @@ import { seccionesApi } from "./services/seccionesApi";
 import { horariosApi } from "./services/horariosApi";
 import { asistenciasApi } from "./services/asistenciasApi";
 import { ponderacionesApi } from "./services/ponderacionesApi";
+import { tutoresApi } from "./services/tutoresApi";
 
 const persistConfig = {
   key: "user",
@@ -41,6 +42,7 @@ export const store = configureStore({
     [horariosApi.reducerPath]: horariosApi.reducer,
     [asistenciasApi.reducerPath]: asistenciasApi.reducer,
     [ponderacionesApi.reducerPath]: ponderacionesApi.reducer,
+    [tutoresApi.reducerPath]: tutoresApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
@@ -59,6 +61,7 @@ export const store = configureStore({
       horariosApi.middleware,
       asistenciasApi.middleware,
       ponderacionesApi.middleware,
+      tutoresApi.middleware,
     ]),
 });
 

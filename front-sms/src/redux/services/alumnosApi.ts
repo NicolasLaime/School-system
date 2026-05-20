@@ -104,7 +104,7 @@ export const alumnosApi = createApi({
     }),
 
     //alumno por codigo
-    getAlumnosPorCodigo: builder.query<alumnosResponse, string>({
+    getAlumnosPorCodigo: builder.query<AlumnoResponse, string>({
       query: (codigo) => `/api/alumnos/codigo/${codigo}`,
       providesTags: ['Alumnos'],
     }),
@@ -122,6 +122,7 @@ export const {
   useGetAlumnosPorSeccionQuery,
   useGetAlumnosPorGradoYCicloQuery,
   useGetAlumnosPorCodigoQuery,
+  useLazyGetAlumnosPorCodigoQuery,
 } = alumnosApi
 
 

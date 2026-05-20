@@ -215,6 +215,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       ],
     },
     {
+      title: "Tutores",
+      url: "/dashboard/tutores",
+      icon: Users,
+      group: "personas",
+      rol: ["ROLE_ADMIN", "ROLE_DIRECTIVO", "ROLE_DOCENTE"],
+      items: [
+        { title: "Listado de tutores", url: "/dashboard/tutores" },
+        { title: "Nuevo tutor", url: "/dashboard/tutores/nuevo" },
+      ],
+    },
+    {
       title: "Asistencias",
       url: "/dashboard/asistencias",
       icon: CalendarCheck,
