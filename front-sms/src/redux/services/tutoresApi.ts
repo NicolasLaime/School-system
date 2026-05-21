@@ -19,7 +19,6 @@ export const tutoresApi = createApi({
   tagTypes: ["Tutores"],
   baseQuery: baseQueryWithReauth,
   endpoints: (builder) => ({
-    // Crear un tutor
     createTutor: builder.mutation<TutorResponse, CreateTutorRequest>({
       query: (tutor) => ({
         url: "/api/tutores",
@@ -29,11 +28,40 @@ export const tutoresApi = createApi({
       invalidatesTags: [{ type: "Tutores", id: "LIST" }],
     }),
 
-    // Obtener tutores por alumno
-    getTutoresByAlumno: builder.query<TutoresResponse, string | number>({
-      query: (alumnoId) => `/api/tutores/alumno/${alumnoId}`,
-      providesTags: (result, error, alumnoId) => [
-        { type: "Tutores", id: `ALUMNO_${alumnoId}` },
+    getTutorById: builder.query<TutorResponse, number>({
+      query: (id) => `/api/tutores/${id}`,
+      providesTags: (result, error, id) => [
+        { type: "Tutores", id: `TUTOR_${id}` },
+      ],
+    }),
+
+    getTutoresByAlumno: builder.query<TutoresResponse, string>({
+      query: (codigo) => `/api/tutores/alumno/${codigo}`,
+      providesTags: (result, error, codigo) => [
+        { type: "Tutores", id: `ALUMNO_${codigo}` },
+        { type: "Tutores", id: "LIST" },
+      ],
+    }),
+
+    updateTutor: builder.mutation<TutorResponse, { id: number; data: CreateTutorRequest }>({
+      query: ({ id, data }) => ({
+        url: `/api/tutores/${id}`,
+        method: "PUT",
+        body: data,
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        { type: "Tutores", id: `TUTOR_${id}` },
+        { type: "Tutores", id: "LIST" },
+      ],
+    }),
+
+    deleteTutor: builder.mutation<void, number>({
+      query: (id) => ({
+        url: `/api/tutores/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: (result, error, id) => [
+        { type: "Tutores", id: `TUTOR_${id}` },
         { type: "Tutores", id: "LIST" },
       ],
     }),
@@ -42,5 +70,8 @@ export const tutoresApi = createApi({
 
 export const {
   useCreateTutorMutation,
+  useGetTutorByIdQuery,
   useGetTutoresByAlumnoQuery,
+  useUpdateTutorMutation,
+  useDeleteTutorMutation,
 } = tutoresApi;

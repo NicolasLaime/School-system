@@ -130,6 +130,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       items: [
         { title: "Listado de notas", url: "/dashboard/notas" },
         { title: "Nueva nota", url: "/dashboard/notas/nuevo" },
+        { title: "Subir Excel", url: "/dashboard/notas/subir-excel" },
       ],
     },
     {
