@@ -55,6 +55,8 @@ public class UsuarioService {
                 .apellido(request.getApellido())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
+                .telefono(request.getTelefono())
+                .direccion(request.getDireccion())
                 .rol(request.getRol())
                 .activo(true)
                 .build();
@@ -130,6 +132,8 @@ public class UsuarioService {
                 .nombre(u.getNombre())
                 .apellido(u.getApellido())
                 .email(u.getEmail())
+                .telefono(u.getTelefono())
+                .direccion(u.getDireccion())
                 .rol(u.getRol())
                 .activo(u.getActivo())
                 .createdAt(u.getCreatedAt())

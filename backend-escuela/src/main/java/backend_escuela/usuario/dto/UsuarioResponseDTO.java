@@ -19,4 +19,6 @@ public class UsuarioResponseDTO {
     private RolNombre rol;
     private Boolean activo;
     private LocalDateTime createdAt;
+    private String telefono;
+    private String direccion;
 }

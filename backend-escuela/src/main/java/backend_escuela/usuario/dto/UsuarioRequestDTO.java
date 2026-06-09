@@ -33,4 +33,9 @@ public class UsuarioRequestDTO {
 
     @NotNull
     private RolNombre rol;
+
+    private String telefono;
+
+    private String direccion;
+
 }

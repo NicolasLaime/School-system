@@ -78,7 +78,28 @@ public class AsignaturaService {
     // ─── Buscar por ID ────────────────────────────────────────────────────
     @Transactional
     public AsignaturaResponseDto buscarPorId(Long id) {
-        return toResponse(obtenerOFallar(id));
+        Asignatura asignatura = obtenerOFallar(id);
+        List<DocenteAsignaturaSeccion> dasList = dasRepository.findByAsignaturaId(id);
+        Long   docenteId = null;
+        String docenteNombre = "";
+        String docenteApellido = "";
+        if (!dasList.isEmpty()) {
+            docenteId = dasList.get(0).getDocente().getId();
+            docenteNombre = dasList.get(0).getDocente().getNombre();
+            docenteApellido = dasList.get(0).getDocente().getApellido();
+        }
+        return AsignaturaResponseDto.builder()
+                .id(asignatura.getId())
+                .nombre(asignatura.getNombre())
+                .codigo(asignatura.getCodigo())
+                .gradoId(asignatura.getGrado().getId())
+                .gradoNombre(asignatura.getGrado().getNombre())
+                .cicloEducativoId(asignatura.getGrado().getCicloEducativo().getId())
+                .cicloEducativoNombre(asignatura.getGrado().getCicloEducativo().getNombre())
+                .docenteId(docenteId)
+                .docenteNombre(docenteNombre)
+                .docenteApellido(docenteApellido)
+                .build();
     }
 
     // ─── Actualizar ───────────────────────────────────────────────────────
