@@ -27,11 +27,16 @@ public class Usuario {
     @Column(nullable = false, unique = true, length = 150)
     private String email;
 
-    // La contraseña siempre se guarda hasheada, nunca en texto plano
+
     @Column(name = "password", nullable = false)
     private String password;
 
-    // Guardamos el enum como texto en la BD ("ADMIN", "DOCENTE", "DIRECTIVO")
+    @Column(length = 20)
+    private String telefono;
+
+    @Column(length = 255)
+    private String direccion;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
     private RolNombre rol;
