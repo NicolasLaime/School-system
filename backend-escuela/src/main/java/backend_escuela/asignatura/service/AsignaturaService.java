@@ -80,6 +80,11 @@ public class AsignaturaService {
     public AsignaturaResponseDto buscarPorId(Long id) {
         Asignatura asignatura = obtenerOFallar(id);
         List<DocenteAsignaturaSeccion> dasList = dasRepository.findByAsignaturaId(id);
+
+        List<DocenteAsignaturaResponseDto> docentesList = dasList.stream()
+                .map(this::toDasResponse)
+                .collect(Collectors.toList());
+
         Long   docenteId = null;
         String docenteNombre = "";
         String docenteApellido = "";
@@ -99,6 +104,7 @@ public class AsignaturaService {
                 .docenteId(docenteId)
                 .docenteNombre(docenteNombre)
                 .docenteApellido(docenteApellido)
+                .docentes(docentesList)
                 .build();
     }
 
@@ -133,7 +139,6 @@ public class AsignaturaService {
     @Transactional
     public DocenteAsignaturaResponseDto asignarDocente(DocenteAsignaturaRequestDto request) {
 
-        // Verificar que el usuario existe y es docente
         Usuario docente = usuarioRepository.findById(request.getDocenteId())
                 .orElseThrow(() -> ApiException.notFound(
                         "Docente con id " + request.getDocenteId() + " no encontrado"
@@ -148,7 +153,6 @@ public class AsignaturaService {
         Asignatura asignatura = obtenerOFallar(request.getAsignaturaId());
         Seccion seccion    = seccionService.obtenerOFallar(request.getSeccionId());
 
-        // Verificar que no exista ya la asignación
         if (dasRepository.existsByDocenteIdAndAsignaturaIdAndSeccionId(
                 request.getDocenteId(), request.getAsignaturaId(), request.getSeccionId())) {
             throw ApiException.conflict(
@@ -202,6 +206,12 @@ public class AsignaturaService {
                 .stream()
                 .map(a -> {
                     List<DocenteAsignaturaSeccion> dasList = dasRepository.findByAsignaturaId(a.getId());
+
+                    List<DocenteAsignaturaResponseDto> docentesList = dasList.stream()
+                            .map(this::toDasResponse)
+                            .collect(Collectors.toList());
+
+
                     Long   docenteId = null;
                     String docenteNombre = "";
                     String docenteApellido = "";
@@ -221,13 +231,11 @@ public class AsignaturaService {
                             .docenteId(docenteId)
                             .docenteNombre(docenteNombre)
                             .docenteApellido(docenteApellido)
+                            .docentes(docentesList)
                             .build();
                 })
                 .collect(Collectors.toList());
     }
-
-
-
 
     // ─── Helpers ──────────────────────────────────────────────────────────
 
@@ -263,30 +271,6 @@ public class AsignaturaService {
                 .gradoNombre(das.getSeccion().getGrado().getNombre())
                 .build();
     }
-
-    private AsignaturaResponseDto toResponseConDocentes(
-            Asignatura a, List<DocenteAsignaturaResponseDto> docentes) {
-        return AsignaturaResponseDto.builder()
-                .id(a.getId())
-                .nombre(a.getNombre())
-                .codigo(a.getCodigo())
-                .gradoId(a.getGrado().getId())
-                .gradoNombre(a.getGrado().getNombre())
-                .cicloEducativoId(a.getGrado().getCicloEducativo().getId())
-                .cicloEducativoNombre(a.getGrado().getCicloEducativo().getNombre())
-                .docentes(docentes)
-                .build();
-    }
-
-
-
-
-
-
-
-
-
-
 
 
 }
