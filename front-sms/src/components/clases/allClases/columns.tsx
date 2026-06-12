@@ -12,11 +12,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Checkbox } from "@/components/ui/checkbox";
 import Link from "next/link";
-import { AsignaturasConDocentesResponse } from "@/redux/services/asignatura.Api";
+import { DocenteAsignado } from "../../../../types/materia.types";
 
-type ClaseRow = AsignaturasConDocentesResponse["data"][number];
-
-export const getColumns = (): ColumnDef<ClaseRow>[] => [
+export const getColumns = (): ColumnDef<DocenteAsignado>[] => [
   {
     id: "select",
     header: ({ table }) => (
@@ -56,42 +54,30 @@ export const getColumns = (): ColumnDef<ClaseRow>[] => [
     enableGlobalFilter: true,
   },
   {
-    accessorKey: "codigo",
-    header: "Codigo",
-    enableGlobalFilter: true,
-    cell: ({ row }) => (
-      <span className="text-center flex items-center justify-center">
-        {row.original.codigo}
-      </span>
-    ),
-  },
-  {
+    accessorKey: "asignaturaNombre",
     header: "Materia",
     enableGlobalFilter: true,
     cell: ({ row }) => (
-      <span>{row.original.nombre || "-"}</span>
+      <span>{row.original.asignaturaNombre || "-"}</span>
     ),
   },
   {
-    header: "Grado",
-    enableGlobalFilter: true,
-    cell: ({ row }) => (
-      <span>{row.original.gradoNombre || "-"}</span>
-    ),
-  },
-  {
-    header: "Ciclo",
-    enableGlobalFilter: true,
-    cell: ({ row }) => (
-      <span>{row.original.cicloEducativoNombre || "-"}</span>
-    ),
-  },
-  {
+    accessorKey: "docenteNombre",
     header: "Docente",
     enableGlobalFilter: true,
     cell: ({ row }) => (
       <span>{`${row.original.docenteNombre} ${row.original.docenteApellido}`.trim() || "-"}</span>
     ),
+  },
+  {
+    accessorKey: "seccionNombre",
+    header: "Sección",
+    enableGlobalFilter: true,
+  },
+  {
+    accessorKey: "gradoNombre",
+    header: "Grado",
+    enableGlobalFilter: true,
   },
   {
     id: "actions",

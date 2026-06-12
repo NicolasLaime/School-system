@@ -1,6 +1,6 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithReauth } from "./authApi";
-import { Asignatura } from "../../../types/materia.types";
+import { Asignatura, AsignaturaConDocentes } from "../../../types/materia.types";
 
 
 interface AsignaturasResponse {
@@ -18,21 +18,7 @@ interface AsignaturaResponse {
 export interface AsignaturasConDocentesResponse {
   message: string;
   error?: string;
-  "data": [
-    {
-      id: number;
-      nombre: string;
-      codigo: string;
-      gradoId: number;
-      gradoNombre: string;
-      cicloEducativoId: number;
-      cicloEducativoNombre: string;
-      docenteId: number;
-      docenteNombre: string;
-      docenteApellido: string;
-      docentes: string | null;
-    }
-  ]
+  data: AsignaturaConDocentes[];
 }
 
 export const materiasApi = createApi({
