@@ -63,6 +63,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const userLogin = useSelector(selectUserLogin)
   const userRole = (userLogin?.role || "ROLE_ADMIN") as UserRole
 
+  console.log("userRole",userLogin)
+
   const fullNav: NavSection[] = [
     // ── Sin grupo (siempre visible) ──────────────────────────────
     {
@@ -130,6 +132,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       items: [
         { title: "Listado de notas", url: "/dashboard/notas" },
         { title: "Nueva nota", url: "/dashboard/notas/nuevo" },
+        { title: "Subir Excel", url: "/dashboard/notas/subir-excel" },
       ],
     },
     {
@@ -232,7 +235,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       group: "personas",
       rol: ["ROLE_ADMIN", "ROLE_DIRECTIVO", "ROLE_DOCENTE"],
       items: [
-        { title: "Listado de asistencias", url: "/dashboard/asistencias" },
         { title: "Asistencia alumnos", url: "/dashboard/asistencias/alumno-nuevo" },
         { title: "Asistencia docente", url: "/dashboard/asistencias/docente-nuevo" },
       ],

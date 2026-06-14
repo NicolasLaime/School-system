@@ -1,31 +1,42 @@
 "use client"
-import InformacionDocente from '@/components/clases/informacionDocente'
-import TablasAlumnosClases from '@/components/clases/tablasAlumnosClases'
 import { BreadcrumbWithCustomSeparator } from '@/components/ui/breadcrumbSeparator'
-import { useGetClasesbyIdQuery } from '@/redux/services/clasesApi'
-import { Loader2 } from 'lucide-react'
-import { useParams } from 'next/navigation'
-import React from 'react'
+import { useGetAsignaturasConDocentesQuery, useAsignarDocenteMutation, useDesasignarDocenteMutation } from '@/redux/services/asignatura.Api'
+import { useGetUsuariosByRolQuery } from '@/redux/services/authApi'
+import { Loader2, User, BookOpen, GraduationCap, Hash, Trash2, Pencil } from 'lucide-react'
+import { useParams, useRouter } from 'next/navigation'
+import React, { useState } from 'react'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { AlertCircle, CheckCircle2 } from 'lucide-react'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
 const Page = () => {
   const params = useParams()
-  const id = params.id as string
-  const { data, isLoading, isError, refetch } = useGetClasesbyIdQuery(id)
-
-  // Destructuring con valores por defecto
-  const { 
-    docente, 
-    anioLectivo, 
-    docenteId, 
-    materiaId, 
-    materia, 
-    estudiantes: AlumnosClase,
-    id: claseId 
-  } = data?.data || {}
-
-  const { nombre: materiaNombre } = materia || {}
-
-  if (!id) return <div>No se ha encontrado la clase</div>
+  const router = useRouter()
+  const id = Number(params.id)
+  const { data, isLoading, isError, refetch } = useGetAsignaturasConDocentesQuery()
+  const { data: docentesData, isLoading: isLoadingDocentes } = useGetUsuariosByRolQuery('DOCENTE')
+  const [asignarDocente, { isLoading: isAsignando }] = useAsignarDocenteMutation()
+  const [desasignarDocente, { isLoading: isDesasignando }] = useDesasignarDocenteMutation()
+  const [open, setOpen] = useState(false)
+  const [selectedDocenteId, setSelectedDocenteId] = useState('')
+  const [mensaje, setMensaje] = useState('')
+  const [error, setError] = useState('')
 
   if (isLoading) return (
     <section className="container mx-auto py-10">
@@ -33,64 +44,180 @@ const Page = () => {
     </section>
   )
 
-  if (isError) return <div>Clase no encontrada</div>
+  if (isError) return <div className="container mx-auto py-10 px-5 text-destructive text-center">Error al cargar los datos</div>
 
-  // Validaciones agrupadas
-  const missingData = []
-  if (!docente) missingData.push("docente")
-  if (!anioLectivo) missingData.push("año lectivo")
-  if (!docenteId) missingData.push("ID del docente")
-  if (!materiaId) missingData.push("ID de la materia")
-  if (!claseId) missingData.push("ID de la clase")
-  if (!materiaNombre) missingData.push("nombre de la materia")
+  const allRows = data?.data?.flatMap((a) => a.docentes ?? []) ?? []
+  const claseData = allRows.find((item) => item.id === id)
 
-  if (missingData.length > 0) {
+  if (!claseData) {
     return (
-      <div className='text-red-500 container mx-auto py-10 px-5'>
-        Faltan datos: {missingData.join(', ')}
+      <div className="container mx-auto py-10 px-5">
+        <p className="text-destructive text-center">Clase no encontrada</p>
       </div>
     )
   }
 
-  const handleDocenteUpdated = () => {
-    console.log("✅ Docente actualizado, recargando datos...")
-    refetch()
+  const handleAsignar = async () => {
+    setError('')
+    setMensaje('')
+    if (!selectedDocenteId) {
+      setError('Debe seleccionar un docente')
+      return
+    }
+    try {
+      await asignarDocente({
+        docenteId: Number(selectedDocenteId),
+        asignaturaId: claseData.asignaturaId,
+        seccionId: claseData.seccionId,
+      }).unwrap()
+      setMensaje('Docente asignado correctamente')
+      setSelectedDocenteId('')
+      setTimeout(() => {
+        setOpen(false)
+        refetch()
+      }, 1500)
+    } catch (err) {
+      setError((err as { data?: { error?: string } })?.data?.error || 'Error al asignar docente')
+    }
   }
 
-  // Props agrupadas por componente
-  const infoDocenteProps = {
-    docente: docente!,
-    anioLectivo: anioLectivo!,
-    claseId: claseId!,
-    docenteId: docenteId!,
-    onDocenteUpdated: handleDocenteUpdated
-  }
-
-  const tablasAlumnosProps = {
-    AlumnosClase: AlumnosClase!,
-    docenteId: docenteId!,
-    materiaId: materiaId!,
-    claseId: claseId!,
-    anioLectivo: anioLectivo!,
-    materiaNombre: materiaNombre!,
-    refetch
+  const handleDesasignar = async () => {
+    setError('')
+    setMensaje('')
+    try {
+      await desasignarDocente({
+        docenteId: claseData.docenteId,
+        asignaturaId: claseData.asignaturaId,
+        seccionId: claseData.seccionId,
+      }).unwrap()
+      setMensaje('Docente desasignado correctamente')
+      setTimeout(() => {
+        router.push('/dashboard/clases')
+      }, 1500)
+    } catch (err) {
+      setError((err as { data?: { error?: string } })?.data?.error || 'Error al desasignar docente')
+    }
   }
 
   return (
     <main className="container mx-auto py-10 px-5">
-      <BreadcrumbWithCustomSeparator 
-        href="/dashboard/clases" 
-        label="Clases" 
-        page="Informacion" 
+      <BreadcrumbWithCustomSeparator
+        href="/dashboard/clases"
+        label="Clases"
+        page="Informacion"
       />
-      
-      <section className="container mx-auto py-10 px-5">
-        <InformacionDocente {...infoDocenteProps} />
-      </section>
-      
-      <section className="container mx-auto py-10 px-5">
-        <TablasAlumnosClases {...tablasAlumnosProps} />
-      </section>
+
+      {mensaje && (
+        <Alert className="border-green-200 my-4">
+          <CheckCircle2 className="h-4 w-4 text-green-600" />
+          <AlertDescription className="text-green-700">{mensaje}</AlertDescription>
+        </Alert>
+      )}
+      {error && (
+        <Alert variant="destructive" className="my-4">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 py-10">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <BookOpen className="h-5 w-5" />
+              Información de la Clase
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center gap-2">
+              <Hash className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">ID:</span>
+              <span className="font-medium">{claseData.id}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <BookOpen className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">Materia:</span>
+              <span className="font-medium">{claseData.asignaturaNombre}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <GraduationCap className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">Sección:</span>
+              <Badge variant="outline">{claseData.seccionNombre}</Badge>
+            </div>
+            <div className="flex items-center gap-2">
+              <GraduationCap className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">Grado:</span>
+              <span className="font-medium">{claseData.gradoNombre}</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <User className="h-5 w-5" />
+              Docente Asignado
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-1">
+              <p className="text-lg font-semibold">
+                {claseData.docenteNombre} {claseData.docenteApellido}
+              </p>
+              <p className="text-sm text-muted-foreground">ID: {claseData.docenteId}</p>
+            </div>
+            <div className="flex gap-2 pt-2">
+              <Dialog open={open} onOpenChange={setOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="sm" className="cursor-pointer">
+                    <Pencil className="mr-2 h-4 w-4" />
+                    Cambiar Docente
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Cambiar Docente</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4 py-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Nuevo Docente</label>
+                      <Select value={selectedDocenteId} onValueChange={setSelectedDocenteId}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seleccionar docente" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {isLoadingDocentes ? (
+                            <SelectItem value="loading" disabled>Cargando docentes...</SelectItem>
+                          ) : (
+                            docentesData?.data?.map((docente) => (
+                              <SelectItem key={docente.id} value={String(docente.id)}>
+                                {docente.nombre} {docente.apellido}
+                              </SelectItem>
+                            ))
+                          )}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <Button onClick={handleAsignar} disabled={isAsignando} className="w-full cursor-pointer">
+                      {isAsignando ? 'Asignando...' : 'Asignar'}
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={handleDesasignar}
+                disabled={isDesasignando}
+                className="cursor-pointer"
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                {isDesasignando ? 'Quitando...' : 'Quitar Docente'}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </main>
   )
 }
