@@ -1,13 +1,22 @@
-import { BreadcrumbWithCustomSeparator } from '@/components/ui/breadcrumbSeparator'
+import { PageHeader } from "@/components/layout/PageHeader"
 import MainAllCiclos from '@/components/ciclos/allCiclos/main'
-import React from 'react'
 
 const page = () => {
   return (
-    <section className="container mx-auto px-10 py-5">
-        <BreadcrumbWithCustomSeparator href="/dashboard/ciclos" label="Ciclos" page="Listado de Ciclos" />
-            <MainAllCiclos />
-    </section>
+    <>
+      <PageHeader
+        title="Ciclos"
+        breadcrumbs={[{ label: "Ciclos" }]}
+        actions={
+          <a href="/dashboard/ciclos/nuevo">
+            <button className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow hover:bg-primary/90">
+              Nuevo
+            </button>
+          </a>
+        }
+      />
+      <MainAllCiclos />
+    </>
   )
 }
 

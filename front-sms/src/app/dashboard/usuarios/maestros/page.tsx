@@ -1,11 +1,11 @@
-import { BreadcrumbWithCustomSeparator } from '@/components/ui/breadcrumbSeparator'
 import MainAllMaestros from '@/components/usuarios/maestros/main'
+import { PageHeader } from "@/components/layout/PageHeader"
 import React from 'react'
 
 const page = () => {
   return (
     <section className="container mx-auto px-10 py-5">
-        <BreadcrumbWithCustomSeparator href="/dashboard/maestros" label="Maestros" page="Listado de maestros" />
+        <PageHeader title="Maestros" breadcrumbs={[{ label: "Usuarios", href: "/dashboard/usuarios" }, { label: "Maestros" }]} />
             <MainAllMaestros />
     </section>
   )

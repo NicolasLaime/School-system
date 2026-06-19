@@ -1,4 +1,5 @@
 "use client"
+import { toast } from "sonner";
 import { useUpdateTutorMutation } from '@/redux/services/tutoresApi';
 import { useLazyGetAlumnosPorCodigoQuery } from '@/redux/services/alumnosApi';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -141,10 +142,8 @@ const FormEditarTutor = ({ tutor }: FormEditarTutorProps) => {
       }).unwrap();
 
       if (response.success) {
-        setMensaje(response.message || "Tutor actualizado correctamente");
-        setTimeout(() => {
-          router.push("/dashboard/tutores");
-        }, 3000);
+        toast.success(response.message || "Tutor actualizado correctamente");
+        router.push("/dashboard/tutores");
       } else {
         setError(response.message || "Error al actualizar el tutor");
       }

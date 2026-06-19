@@ -1,13 +1,22 @@
-import { BreadcrumbWithCustomSeparator } from '@/components/ui/breadcrumbSeparator'
+import { PageHeader } from "@/components/layout/PageHeader"
 import MainAllPonderaciones from '@/components/ponderaciones/allPonderaciones/main'
-import React from 'react'
 
 const page = () => {
   return (
-    <section className="container mx-auto px-10 py-5">
-        <BreadcrumbWithCustomSeparator href="/dashboard/ponderaciones" label="Ponderaciones" page="Listado de Ponderaciones" />
-            <MainAllPonderaciones />
-    </section>
+    <>
+      <PageHeader
+        title="Ponderaciones"
+        breadcrumbs={[{ label: "Ponderaciones" }]}
+        actions={
+          <a href="/dashboard/ponderaciones/nuevo">
+            <button className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow hover:bg-primary/90">
+              Nueva
+            </button>
+          </a>
+        }
+      />
+      <MainAllPonderaciones />
+    </>
   )
 }
 

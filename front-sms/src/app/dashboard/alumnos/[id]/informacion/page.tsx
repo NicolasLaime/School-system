@@ -1,7 +1,7 @@
 "use client";
 import InformacionAlumno from '@/components/alumnos/informacionAlumno';
 import TablasNotas from '@/components/alumnos/tablasNotas';
-import { BreadcrumbWithCustomSeparator } from '@/components/ui/breadcrumbSeparator';
+import { PageHeader } from "@/components/layout/PageHeader";
 import { useGetAlumnobyIdQuery } from '@/redux/services/alumnosApi';
 import { Loader2 } from 'lucide-react';
 import { useParams } from 'next/navigation';
@@ -71,11 +71,7 @@ const Page = () => {
 
   return (
     <section className="container mx-auto py-10 px-5">
-      <BreadcrumbWithCustomSeparator
-        href="/dashboard/alumnos"
-        label="Alumnos"
-        page="Información"
-      />
+      <PageHeader title="Información del Alumno" breadcrumbs={[{ label: "Alumnos", href: "/dashboard/alumnos" }, { label: "Información" }]} />
 
       <div className="container mx-auto py-10 px-5">
         <Card>

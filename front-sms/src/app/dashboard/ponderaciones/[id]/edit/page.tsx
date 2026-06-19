@@ -1,27 +1,26 @@
-import { BreadcrumbWithCustomSeparator } from '@/components/ui/breadcrumbSeparator'
+import { PageHeader } from "@/components/layout/PageHeader"
 import FormEditPonderacion from '@/components/ponderaciones/formEditPonderacion'
 import { useGetPonderacionByIdQuery } from '@/redux/services/ponderacionesApi'
 import { Loader2 } from 'lucide-react'
 import React from 'react'
 
-const Page = ({ params }: { params: { id: string } }) => {
-  const { data, isLoading } = useGetPonderacionByIdQuery(params.id)
+const Page = ({ params }: { params: Promise<{ id: string }> }) => {
+  const { id } = React.use(params)
+  const { data, isLoading } = useGetPonderacionByIdQuery(id)
 
   if (isLoading) {
     return (
-      <section className="container mx-auto py-10">
-        <Loader2 className="animate-spin h-48 w-48 mx-auto" />
-      </section>
+      <div className="flex justify-center py-10">
+        <Loader2 className="animate-spin h-12 w-12 text-primary" />
+      </div>
     )
   }
 
   return (
-    <section className="container mx-auto px-10 py-5">
-        <BreadcrumbWithCustomSeparator href="/dashboard/ponderaciones" label="Ponderaciones" page="Editar ponderacion" />
-        <div className="flex flex-col gap-4 px-5 py-8 w-[80vw] mx-auto">
-            <FormEditPonderacion dataPonderacion={data?.data} />
-        </div>
-    </section>
+    <>
+        <PageHeader title="Editar ponderación" breadcrumbs={[{ label: "Ponderaciones", href: "/dashboard/ponderaciones" }, { label: "Editar" }]} />
+        <FormEditPonderacion dataPonderacion={data?.data} />
+    </>
   )
 }
 

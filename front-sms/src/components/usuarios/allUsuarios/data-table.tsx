@@ -366,7 +366,8 @@ export function DataTable<TData extends User, TValue>({
           direccion: validatedData.Dirección?.trim() || "",
         };
 
-        await createUser(userData).unwrap();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await (createUser as any)(userData).unwrap();
         existingEmails.add(emailLower); // Agregar a la lista para futuras validaciones
         results.success++;
         

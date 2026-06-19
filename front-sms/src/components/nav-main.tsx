@@ -1,6 +1,8 @@
 "use client"
 
 import { ChevronRight, type LucideIcon } from "lucide-react"
+import { usePathname } from "next/navigation"
+import Link from "next/link"
 
 import {
   Collapsible,
@@ -31,12 +33,25 @@ interface NavSectionItem {
   items?: NavSubItem[]
 }
 
+function isActive(url: string, pathname: string): boolean {
+  if (url === "/dashboard") {
+    return pathname === "/dashboard"
+  }
+  return pathname === url || pathname.startsWith(url + "/")
+}
+
+function hasActiveChild(items: NavSubItem[] | undefined, pathname: string): boolean {
+  if (!items) return false
+  return items.some((item) => isActive(item.url, pathname))
+}
+
 export function NavMain({ items }: { items: NavSectionItem[] }) {
+  const pathname = usePathname()
+
   return (
     <SidebarGroup>
       <SidebarMenu>
         {items.map((item) => {
-          // Renderizar separador de grupo
           if (item.isSeparator) {
             return (
               <li
@@ -58,31 +73,32 @@ export function NavMain({ items }: { items: NavSectionItem[] }) {
             )
           }
 
-          // Item sin subitems: link directo
+          const active = isActive(item.url, pathname)
+          const childActive = hasActiveChild(item.items, pathname)
+
           if (!item.items || item.items.length === 0) {
             return (
               <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton tooltip={item.title} asChild>
-                  <a href={item.url}>
+                <SidebarMenuButton tooltip={item.title} isActive={active} asChild>
+                  <Link href={item.url}>
                     <item.icon />
                     <span>{item.title}</span>
-                  </a>
+                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             )
           }
 
-          // Item con subitems: collapsible
           return (
             <Collapsible
               key={item.title}
               asChild
-              defaultOpen={item.isActive}
+              defaultOpen={active || childActive}
               className="group/collapsible"
             >
               <SidebarMenuItem>
                 <CollapsibleTrigger asChild>
-                  <SidebarMenuButton tooltip={item.title}>
+                  <SidebarMenuButton tooltip={item.title} isActive={active}>
                     <item.icon />
                     <span>{item.title}</span>
                     <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
@@ -90,15 +106,18 @@ export function NavMain({ items }: { items: NavSectionItem[] }) {
                 </CollapsibleTrigger>
                 <CollapsibleContent>
                   <SidebarMenuSub>
-                    {item.items.map((subItem) => (
-                      <SidebarMenuSubItem key={subItem.title}>
-                        <SidebarMenuSubButton asChild>
-                          <a href={subItem.url}>
-                            <span>{subItem.title}</span>
-                          </a>
-                        </SidebarMenuSubButton>
-                      </SidebarMenuSubItem>
-                    ))}
+                    {item.items.map((subItem) => {
+                      const subActive = isActive(subItem.url, pathname)
+                      return (
+                        <SidebarMenuSubItem key={subItem.title}>
+                          <SidebarMenuSubButton isActive={subActive} asChild>
+                            <Link href={subItem.url}>
+                              <span>{subItem.title}</span>
+                            </Link>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      )
+                    })}
                   </SidebarMenuSub>
                 </CollapsibleContent>
               </SidebarMenuItem>

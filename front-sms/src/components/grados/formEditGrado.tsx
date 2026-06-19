@@ -72,7 +72,7 @@ const FormEditGrado = ({ dataGrado }: Props) => {
 
         try {
             const response = await updateGradoApi({
-                id: dataGrado.id,
+                id: String(dataGrado.id),
                 data: values
             }).unwrap();
             

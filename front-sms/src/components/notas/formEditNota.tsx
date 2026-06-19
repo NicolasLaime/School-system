@@ -42,7 +42,7 @@ interface Props {
 const FormEditNota = ({ dataNota }: Props) => {
   const router = useRouter()
   const [updateNotaApi, { isLoading }] = useUpdateNotaMutation()
-  const { data: asignaturasData, isLoading: isLoadingAsignaturas } = useGetAsignaturasQuery()
+  const { isLoading: isLoadingAsignaturas } = useGetAsignaturasQuery()
   const [mensaje, setMensaje] = useState("")
   const [error, setError] = useState("")
 

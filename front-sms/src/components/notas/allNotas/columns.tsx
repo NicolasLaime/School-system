@@ -13,9 +13,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Checkbox } from "@/components/ui/checkbox";
 import Link from "next/link";
-import { NotaData } from "../../../../types/nota.type";
+import { NotaDetail } from "../../../../types/nota.type";
 
-export const getColumns = (): ColumnDef<NotaData>[] => [
+export const getColumns = (): ColumnDef<NotaDetail>[] => [
   {
     id: "select",
     header: ({ table }) => (

@@ -94,7 +94,7 @@ const FormSubirExcel = () => {
   const [step, setStep] = useState<"form" | "revisar" | "subiendo" | "resultado">("form");
   const [error, setError] = useState("");
   const [archivo, setArchivo] = useState<File | null>(null);
-  const [excelRows, setExcelRows] = useState<ExcelRow[]>([]);
+  const [_excelRows, setExcelRows] = useState<ExcelRow[]>([]); // eslint-disable-line @typescript-eslint/no-unused-vars
   const [conflictRows, setConflictRows] = useState<ConflictRow[]>([]);
   const [progreso, setProgreso] = useState({ actual: 0, total: 0 });
   const [resultado, setResultado] = useState<{ subidas: number; actualizadas: number; saltadas: number; errores: number } | null>(null);

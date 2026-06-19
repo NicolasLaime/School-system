@@ -1,4 +1,5 @@
 "use client"
+import { toast } from "sonner";
 import { useCreateAlumnoMutation } from '@/redux/services/alumnosApi';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
@@ -79,17 +80,14 @@ const FormNuevoAlumno = () => {
       const response = await createAlumno(data).unwrap();
 
       if (response.success) {
-        setMensaje(response.message || "Alumno creado correctamente");
+        toast.success(response.message || "Alumno creado correctamente");
 
         // Mostrar información de las inscripciones automáticas
         if (response.enrollment) {
           setEnrollmentInfo(response.enrollment);
         }
 
-        // Redirigir después de 3 segundos para que el usuario vea el mensaje
-        setTimeout(() => {
-          router.push("/dashboard/alumnos");
-        }, 9000);
+        router.push("/dashboard/alumnos");
       } else {
         setError(response.message || "Error al crear el alumno");
       }

@@ -6,96 +6,76 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import {
     Table,
     TableBody,
-    TableCaption,
     TableCell,
     TableHead,
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
-import { Clase } from '../../../types/Usuario.type';
 import Link from 'next/link';
 import { Button } from '../ui/button';
+import { PageHeader } from '@/components/layout/PageHeader'
+import { DashboardKPIs } from '@/components/dashboard/DashboardKPIs'
+import { BookOpen } from 'lucide-react'
 
 const DocenteHome = () => {
 
     const userLogin = useSelector(selectUserLogin);
-
-    console.log("userLogin", userLogin);
-
-    const clases = userLogin?.clases;
-
-    console.log("clases", clases);
+    const userLoginAny = userLogin as Record<string, unknown>
+    const nombre = userLoginAny?.nombre as string || "usuario"
+    const clases = userLoginAny?.clases as { id: number; materia: { nombre: string; codigo: string; ciclo: string } }[] | undefined;
 
     return (
-        <section className='container mx-auto px-5 py-10 w-screen flex flex-col gap-10'>
-            <div>
-                <h1>Bienvenido {userLogin?.nombre}</h1>
-            </div>
-            <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Clases</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p>
-                            {userLogin?.clases?.length}
-                        </p>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Notas</CardTitle>
-                    </CardHeader>
-                </Card>
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Notas</CardTitle>
-                    </CardHeader>
-                </Card>
-            </div>
-            <div>
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Tabla de Clases</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <Table>
-                            <TableCaption>Tabla de Clases</TableCaption>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Nombre</TableHead>
-                                    <TableHead>Codigo</TableHead>
-                                    <TableHead>Ciclo</TableHead>
-                                    <TableHead>Acciones</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {clases?.length > 0 ? (
-                                    clases.map((clase: Clase) => (
-                                        <TableRow key={clase.id}>
-                                            <TableCell>{clase.materia?.nombre}</TableCell>
-                                            <TableCell>{clase.materia?.codigo}</TableCell>
-                                            <TableCell>{clase.materia?.ciclo}</TableCell>
-                                            <TableCell>
-                                                <Link href={`/dashboard/clases/${clase.id}/informacion`}>
-                                                    <Button>Ver Clase</Button>
-                                                </Link>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))
-                                ) : (
-                                    <TableRow>
-                                        <TableCell colSpan={3} className='text-center'>
-                                            No hay clases
+        <div className="space-y-6">
+            <PageHeader
+                title="Panel de Control"
+                description={`Bienvenido, ${nombre}`}
+            />
+
+            <DashboardKPIs role={userLogin?.role || "ROLE_DOCENTE"} />
+
+            <Card>
+                <CardHeader>
+                    <CardTitle className="text-base font-semibold flex items-center gap-2">
+                        <BookOpen size={18} className="text-primary" />
+                        Mis Clases
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Nombre</TableHead>
+                                <TableHead>Código</TableHead>
+                                <TableHead>Ciclo</TableHead>
+                                <TableHead className="text-right">Acciones</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {(clases?.length ?? 0) > 0 ? (
+                                clases?.map((clase) => (
+                                    <TableRow key={clase.id}>
+                                        <TableCell className="font-medium">{clase.materia?.nombre}</TableCell>
+                                        <TableCell>{clase.materia?.codigo}</TableCell>
+                                        <TableCell>{clase.materia?.ciclo}</TableCell>
+                                        <TableCell className="text-right">
+                                            <Link href={`/dashboard/clases/${clase.id}/informacion`}>
+                                                <Button size="sm">Ver Clase</Button>
+                                            </Link>
                                         </TableCell>
                                     </TableRow>
-                                )}
-                            </TableBody>
-                        </Table>
-                    </CardContent>
-                </Card>
-            </div>
-        </section>
+                                ))
+                            ) : (
+                                <TableRow>
+                                    <TableCell colSpan={4} className="text-center text-muted-foreground h-24">
+                                        No hay clases asignadas
+                                    </TableCell>
+                                </TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
+                </CardContent>
+            </Card>
+        </div>
     )
 }
 

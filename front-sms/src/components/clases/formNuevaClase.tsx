@@ -1,4 +1,5 @@
 "use client";
+import { toast } from "sonner";
 import { useGetUserByIdQuery } from '@/redux/services/authApi';
 import { useAsignarDocenteMutation, useGetAsignaturasByCodigoQuery } from '@/redux/services/asignatura.Api';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -130,7 +131,8 @@ const FormNuevaClase = () => {
                     docente: "",
                     seccion: "",
                 });
-                setTimeout(() => router.push("/dashboard/clases"), 1500);
+                toast.success("Clase creada correctamente");
+                router.push("/dashboard/clases");
             }
         } catch (error) {
             console.error("Error al crear clase:", error);

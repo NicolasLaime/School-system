@@ -1,4 +1,5 @@
 "use client";
+import { toast } from "sonner";
 import {
   useCreateHorarioMutation,
 } from "@/redux/services/horariosApi";
@@ -75,10 +76,8 @@ const FormNuevoHorario = () => {
         seccionId: Number(values.seccionId),
       }).unwrap();
       if (response) {
-        setMessage("Horario creado correctamente");
-        setTimeout(() => {
-          router.push("/dashboard/horarios");
-        }, 1500);
+        toast.success("Horario creado correctamente");
+        router.push("/dashboard/horarios");
       } else {
         setMessage("Error al crear el horario");
       }

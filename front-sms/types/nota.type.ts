@@ -1,4 +1,4 @@
-import { Materia } from "./materia.types";
+import { Asignatura } from "./materia.types";
 import { Clase } from "./Usuario.type";
 
 type Bimestre = 1 | 2 | 3 | 4;
@@ -9,7 +9,7 @@ export interface Nota {
   valor: number;
   bimestre: Bimestre;
   alumnoId: string;
-  materia: Materia;
+  materia: Asignatura;
   createdAt: string;
   updatedAt: string;
 }
@@ -26,7 +26,7 @@ export interface NotaParcial {
   valor: number;
   bimestre: number;
   alumnoId?: string;
-  materia?: Materia;
+  materia?: Asignatura;
 }
 
 export interface CreateNotaRequest {

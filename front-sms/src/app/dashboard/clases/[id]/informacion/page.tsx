@@ -1,5 +1,5 @@
 "use client"
-import { BreadcrumbWithCustomSeparator } from '@/components/ui/breadcrumbSeparator'
+import { PageHeader } from "@/components/layout/PageHeader"
 import { useGetAsignaturasConDocentesQuery, useAsignarDocenteMutation, useDesasignarDocenteMutation } from '@/redux/services/asignatura.Api'
 import { useGetUsuariosByRolQuery } from '@/redux/services/authApi'
 import { Loader2, User, BookOpen, GraduationCap, Hash, Trash2, Pencil } from 'lucide-react'
@@ -101,11 +101,7 @@ const Page = () => {
 
   return (
     <main className="container mx-auto py-10 px-5">
-      <BreadcrumbWithCustomSeparator
-        href="/dashboard/clases"
-        label="Clases"
-        page="Informacion"
-      />
+      <PageHeader title="Información de la Clase" breadcrumbs={[{ label: "Clases", href: "/dashboard/clases" }, { label: "Información" }]} />
 
       {mensaje && (
         <Alert className="border-green-200 my-4">

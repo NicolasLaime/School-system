@@ -1,7 +1,7 @@
-import { Student } from "./alumnos.types";
+import { Alumno } from "./alumnos.types";
 
 export type Boleta = {
-  alumno: Student;
+  alumno: Alumno;
   promedioFinal: number;
   promediosBimestrales: {
     bimestre: number;

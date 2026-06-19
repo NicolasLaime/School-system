@@ -112,6 +112,7 @@ const MainAllAsistencias = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
               {asistencias.map((asistencia: any) => (
                 <TableRow key={asistencia.id}>
                   <TableCell className="font-medium">

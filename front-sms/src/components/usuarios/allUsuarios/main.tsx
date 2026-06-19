@@ -1,34 +1,39 @@
 "use client"
 
-import { Loader2 } from 'lucide-react'
-import { useGetUsersQuery } from '@/redux/services/authApi'
-import { DataTable } from './data-table'
+import { DataTableEnhanced } from '@/components/shared/DataTableEnhanced'
 import { getColumns } from './columns'
+import { useGetUsersQuery } from '@/redux/services/authApi'
+import Link from 'next/link'
+import { Button } from '@/components/ui/button'
 
 const MainAllUsuarios = () => {
+  const { data, isLoading, isError } = useGetUsersQuery()
 
-
-   const { data, isLoading, isError } = useGetUsersQuery()
-
-
-
-   if (isLoading)
-    return (
-      <section className="container mx-auto py-10">
-        <Loader2 className="text-primary mx-auto mb-5 h-48 w-48 animate-spin" />
-      </section>
-    );
   if (isError) return <p>Error al cargar los usuarios.</p>;
-
-
-  console.log("data usuarios", data?.data)
 
   const usuarios = data?.data
 
   return (
-    <div className="container mx-auto px-5 py-10 w-screen">
-      <DataTable columns={getColumns()} data={usuarios!} />
-    </div>
+    <DataTableEnhanced
+      columns={getColumns()}
+      data={usuarios ?? []}
+      isLoading={isLoading}
+      searchPlaceholder="Buscar usuarios..."
+      globalSearch={true}
+      emptyStateProps={{
+        title: "No hay usuarios registrados",
+        description: "Cree un nuevo usuario para comenzar.",
+      }}
+      exportConfig={{
+        filename: "usuarios",
+        columns: ["id", "nombre", "apellido", "email", "telefono", "direccion", "rol"],
+      }}
+      primaryAction={
+        <Link href="/dashboard/usuarios/nuevo">
+          <Button>Nuevo Usuario</Button>
+        </Link>
+      }
+    />
   )
 }
 

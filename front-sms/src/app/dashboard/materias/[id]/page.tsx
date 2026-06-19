@@ -1,5 +1,5 @@
 "use client"
-import { BreadcrumbWithCustomSeparator } from '@/components/ui/breadcrumbSeparator'
+import { PageHeader } from "@/components/layout/PageHeader"
 import { useParams } from 'next/navigation'
 import React from 'react'
 import { useGetAsignaturasConDocentesQuery } from '@/redux/services/asignatura.Api'
@@ -40,11 +40,7 @@ const Page = () => {
 
   return (
     <section className="container mx-auto px-10 py-5">
-      <BreadcrumbWithCustomSeparator
-        href="/dashboard/materias"
-        label="Materias"
-        page={materia.nombre}
-      />
+      <PageHeader title="Detalle de Materia" breadcrumbs={[{ label: "Materias", href: "/dashboard/materias" }, { label: "Detalle" }]} />
       <MateriaInfo materia={materia} />
     </section>
   )

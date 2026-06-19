@@ -65,18 +65,18 @@ export const getColumns = (
     accessorKey:"horaInicio",
     header: "Hora Inicio",
     cell: ({ row }) => {
-      const hora = row.original.horaInicio;
-      if (typeof hora === "string") return hora;
-      return `${hora.hour.toString().padStart(2, "0")}:${hora.minute.toString().padStart(2, "0")}`;
+      const hora = row.original.horaInicio as unknown as { hour: number; minute: number };
+      if (typeof hora === "string") return hora as string;
+      return `${String(hora.hour).padStart(2, "0")}:${String(hora.minute).padStart(2, "0")}`;
     },
   },
   {
     accessorKey:"horaFin",
     header: "Hora Fin",
     cell: ({ row }) => {
-      const hora = row.original.horaFin;
-      if (typeof hora === "string") return hora;
-      return `${hora.hour.toString().padStart(2, "0")}:${hora.minute.toString().padStart(2, "0")}`;
+      const hora = row.original.horaFin as unknown as { hour: number; minute: number };
+      if (typeof hora === "string") return hora as string;
+      return `${String(hora.hour).padStart(2, "0")}:${String(hora.minute).padStart(2, "0")}`;
     },
   },
   {

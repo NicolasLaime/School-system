@@ -1,9 +1,9 @@
 "use client"
 
 import React, { useState } from 'react'
-import { TutoresDataTable } from './data-table'
+import { DataTableEnhanced } from '@/components/shared/DataTableEnhanced'
 import { getTutorColumns } from './columns'
-import { Loader2, Search } from 'lucide-react'
+import { Search } from 'lucide-react'
 import { useGetTutoresByAlumnoQuery } from '@/redux/services/tutoresApi'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -29,8 +29,8 @@ const MainAllTutores = () => {
   };
 
   return (
-    <div className="container mx-auto px-5 py-10 w-screen">
-      <div className="mb-6 space-y-3">
+    <div className="space-y-6">
+      <div className="space-y-3">
         <h3 className="text-lg font-semibold">Buscar tutores por alumno</h3>
         <div className="flex items-end gap-4">
           <div className="flex-1 max-w-md">
@@ -57,24 +57,32 @@ const MainAllTutores = () => {
         )}
       </div>
 
-      {isLoading && (
-        <section className="container mx-auto py-10">
-          <Loader2 className="text-primary mx-auto mb-5 h-48 w-48 animate-spin" />
-        </section>
-      )}
-
-      {isError && codigoConsultado && (
-        <p className="text-destructive">Error al cargar los tutores del alumno.</p>
-      )}
-
       {!codigoConsultado && (
         <div className="text-center py-16 text-muted-foreground">
           <p className="text-lg">Ingrese el código de un alumno para ver sus tutores asociados.</p>
         </div>
       )}
 
-      {data && !isLoading && (
-        <TutoresDataTable columns={getTutorColumns()} data={data.data ?? []} />
+      {codigoConsultado && (
+        <DataTableEnhanced
+          columns={getTutorColumns()}
+          data={data?.data ?? []}
+          isLoading={isLoading}
+          searchPlaceholder="Buscar tutores..."
+          globalSearch={true}
+          emptyStateProps={{
+            title: "No hay tutores registrados",
+            description: "No se encontraron tutores para el alumno especificado.",
+          }}
+          exportConfig={{
+            filename: "tutores",
+            columns: ["id", "nombre", "apellido", "email", "telefono", "parentesco"],
+          }}
+        />
+      )}
+
+      {isError && codigoConsultado && (
+        <p className="text-destructive text-center py-4">Error al cargar los tutores del alumno.</p>
       )}
     </div>
   )

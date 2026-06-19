@@ -1,28 +1,39 @@
 "use client"
 
-import { Loader2 } from 'lucide-react'
-import { useGetHorariosQuery } from '@/redux/services/horariosApi'
-import { DataTable } from './data-table'
+import { DataTableEnhanced } from '@/components/shared/DataTableEnhanced'
 import { getColumns } from './columns'
+import { useGetHorariosQuery } from '@/redux/services/horariosApi'
+import Link from 'next/link'
+import { Button } from '@/components/ui/button'
 
 const MainAllHorarios = () => {
+  const { data, isLoading, isError } = useGetHorariosQuery()
 
-   const { data, isLoading, isError } = useGetHorariosQuery()
-
-   if (isLoading)
-    return (
-      <section className="container mx-auto py-10">
-        <Loader2 className="text-primary mx-auto mb-5 h-48 w-48 animate-spin" />
-      </section>
-    );
   if (isError) return <p>Error al cargar los horarios.</p>;
 
   const horarios = data?.data
 
   return (
-    <div className="container mx-auto px-5 py-10 w-screen">
-      <DataTable columns={getColumns()} data={horarios!} />
-    </div>
+    <DataTableEnhanced
+      columns={getColumns()}
+      data={horarios ?? []}
+      isLoading={isLoading}
+      searchPlaceholder="Buscar horarios..."
+      globalSearch={true}
+      emptyStateProps={{
+        title: "No hay horarios registrados",
+        description: "Cree un nuevo horario para comenzar.",
+      }}
+      exportConfig={{
+        filename: "horarios",
+        columns: ["id", "diaSemana", "horaInicio", "horaFin", "asignaturaId", "seccionId"],
+      }}
+      primaryAction={
+        <Link href="/dashboard/horarios/nuevo">
+          <Button>Nuevo Horario</Button>
+        </Link>
+      }
+    />
   )
 }
 

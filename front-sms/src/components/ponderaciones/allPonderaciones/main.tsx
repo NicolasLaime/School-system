@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import { useGetPonderacionesQuery, useDeletePonderacionMutation } from "@/redux/services/ponderacionesApi"
 import { Loader2 } from "lucide-react"
 import { DataTable } from "./data-table"
@@ -9,7 +8,6 @@ import { getColumns } from "./columns"
 const MainAllPonderaciones = () => {
   const { data, isLoading, isError } = useGetPonderacionesQuery()
   const [deletePonderacion] = useDeletePonderacionMutation()
-  const [deleteId, setDeleteId] = useState<string | null>(null)
 
   if (isLoading)
     return (

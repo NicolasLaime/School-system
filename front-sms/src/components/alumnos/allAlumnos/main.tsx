@@ -1,36 +1,40 @@
 "use client"
 
 import React from 'react'
-import { DataTable } from './data-table'
+import { DataTableEnhanced } from '@/components/shared/DataTableEnhanced'
 import { getColumns } from './columns'
-import { Loader2 } from 'lucide-react'
 import { useGetAlumnosQuery } from '@/redux/services/alumnosApi'
+import Link from 'next/link'
+import { Button } from '@/components/ui/button'
 
 const MainAllAlumnos = () => {
+  const { data, isLoading, isError } = useGetAlumnosQuery()
 
-
-   const { data, isLoading, isError } = useGetAlumnosQuery()
-
-
-   
-
-   if (isLoading)
-    return (
-      <section className="container mx-auto py-10">
-        <Loader2 className="text-primary mx-auto mb-5 h-48 w-48 animate-spin" />
-      </section>
-    );
   if (isError) return <p>Error al cargar los alumnos.</p>;
 
-
-  console.log("data clases", data?.data)
-
-  const alumnos = data?.data
+  const alumnos = data?.data ?? []
 
   return (
-    <div className="container mx-auto px-5 py-10 w-screen">
-      <DataTable columns={getColumns()} data={alumnos!} />
-    </div>
+    <DataTableEnhanced
+      columns={getColumns()}
+      data={alumnos}
+      isLoading={isLoading}
+      searchPlaceholder="Buscar alumnos..."
+      globalSearch={true}
+      emptyStateProps={{
+        title: "No hay alumnos registrados",
+        description: "Cree un nuevo alumno para comenzar.",
+      }}
+      exportConfig={{
+        filename: "alumnos",
+        columns: ["id", "codigo", "nombre", "apellido", "documento", "gradoNombre", "seccionNombre"],
+      }}
+      primaryAction={
+        <Link href="/dashboard/alumnos/nuevo">
+          <Button>Nuevo Alumno</Button>
+        </Link>
+      }
+    />
   )
 }
 

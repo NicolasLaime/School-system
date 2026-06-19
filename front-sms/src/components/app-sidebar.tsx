@@ -5,6 +5,7 @@ import {
   AlertCircle,
   BookOpen,
   CalendarCheck,
+  CalendarDays,
   ClipboardList,
   Clock,
   Command,
@@ -62,8 +63,6 @@ const GROUP_LABELS: Record<NavGroup, string> = {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const userLogin = useSelector(selectUserLogin)
   const userRole = (userLogin?.role || "ROLE_ADMIN") as UserRole
-
-  console.log("userRole",userLogin)
 
   const fullNav: NavSection[] = [
     // ── Sin grupo (siempre visible) ──────────────────────────────
@@ -240,13 +239,22 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       ],
     },
 
+    // ── CALENDARIO (Organización, todos los roles) ───────────────
+    {
+      title: "Calendario",
+      url: "/dashboard/calendario",
+      icon: CalendarDays,
+      group: "organizacion",
+      items: [{ title: "Calendario", url: "/dashboard/calendario" }],
+    },
+
     // ── COMUNICACIÓN ─────────────────────────────────────────────
     {
       title: "Comunicados",
       url: "/dashboard/notices",
       icon: Megaphone,
       group: "comunicacion",
-      rol: ["ROLE_ADMIN", "ROLE_DIRECTIVO", "ROLE_DOCENTE"],
+      rol: ["ROLE_ADMIN", "ROLE_DIRECTIVO", "ROLE_SUPERADMIN"],
       items: [{ title: "Comunicados", url: "/dashboard/notices" }],
     },
     {
@@ -254,7 +262,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       url: "/dashboard/complains",
       icon: AlertCircle,
       group: "comunicacion",
-      rol: ["ROLE_ADMIN", "ROLE_DIRECTIVO"],
+      rol: ["ROLE_ADMIN", "ROLE_DIRECTIVO", "ROLE_SUPERADMIN"],
       items: [{ title: "Reclamos", url: "/dashboard/complains" }],
     },
 
@@ -277,28 +285,36 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       ),
     }))
 
-  // 2. Insertar separadores de grupo entre secciones
+  // 2. Insertar separadores de grupo entre secciones (solo uno por grupo)
   const navMain = filteredNav.reduce<NavSection[]>((acc, item, i) => {
     const prevGroup = filteredNav[i - 1]?.group
     if (item.group && item.group !== prevGroup) {
-      acc.push({
-        title: GROUP_LABELS[item.group],
-        url: "#",
-        icon: Home,       // requerido por el tipo pero NavMain lo ignora en separadores
-        isSeparator: true,
-      })
+      const groupLabel = GROUP_LABELS[item.group]
+      const alreadyHasSep = acc.some(
+        (s) => s.isSeparator && s.title === groupLabel
+      )
+      if (!alreadyHasSep) {
+        acc.push({
+          title: groupLabel,
+          url: "#",
+          icon: Home,
+          isSeparator: true,
+        })
+      }
     }
     acc.push(item)
     return acc
   }, [])
 
+  const userLoginAny = userLogin as Record<string, unknown> | null
+
   const data = {
     user: {
-      name: userLogin?.nombre || "Usuario",
+      name: (userLoginAny?.nombre as string) || "Usuario",
       email: userLogin?.email || "usuario@ejemplo.com",
       rol: userLogin?.role || "ROLE_SUPERADMIN",
       avatar:
-        userLogin?.avatar ||
+        (userLoginAny?.avatar as string) ||
         "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y",
     },
     teams: [

@@ -1,4 +1,5 @@
 "use client";
+import { toast } from "sonner";
 import {
   useCreateCicloMutation,
 } from "@/redux/services/ciclosApi";
@@ -42,10 +43,8 @@ const FormNuevoCiclo = () => {
     try {
       const response = await createCiclo({ nombre: values.nombre }).unwrap();
       if (response) {
-        setMessage("Ciclo creado correctamente");
-        setTimeout(() => {
-          router.push("/dashboard/ciclos");
-        }, 1500);
+        toast.success("Ciclo creado correctamente");
+        router.push("/dashboard/ciclos");
       } else {
         setMessage("Error al crear el ciclo");
       }

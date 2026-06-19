@@ -1,29 +1,39 @@
 "use client"
 
-import { Loader2 } from 'lucide-react'
-import { useGetNotasQuery } from '@/redux/services/notasApi'
-import { DataTable } from './data-table'
+import { DataTableEnhanced } from '@/components/shared/DataTableEnhanced'
 import { getColumns } from './columns'
+import { useGetNotasQuery } from '@/redux/services/notasApi'
+import Link from 'next/link'
+import { Button } from '@/components/ui/button'
 
 const MainAllNotas = () => {
   const { data, isLoading, isError } = useGetNotasQuery()
 
-  console.log("data", data)
-
-  if (isLoading)
-    return (
-      <section className="container mx-auto py-10">
-        <Loader2 className="text-primary mx-auto mb-5 h-48 w-48 animate-spin" />
-      </section>
-    )
-  if (isError) return <p>Error al cargar las notas.</p>
+  if (isError) return <p>Error al cargar las notas.</p>;
 
   const notas = data?.data || []
 
   return (
-    <div className="container mx-auto px-5 py-10 w-screen">
-      <DataTable columns={getColumns()} data={notas} />
-    </div>
+    <DataTableEnhanced
+      columns={getColumns()}
+      data={notas}
+      isLoading={isLoading}
+      searchPlaceholder="Buscar notas..."
+      globalSearch={true}
+      emptyStateProps={{
+        title: "No hay notas registradas",
+        description: "Cree una nueva nota para comenzar.",
+      }}
+      exportConfig={{
+        filename: "notas",
+        columns: ["id", "alumnoNombre", "asignaturaNombre", "bimestre", "tipoNota", "valor"],
+      }}
+      primaryAction={
+        <Link href="/dashboard/notas/nuevo">
+          <Button>Nueva Nota</Button>
+        </Link>
+      }
+    />
   )
 }
 

@@ -1,4 +1,5 @@
 "use client";
+import { toast } from "sonner";
 import { useCreatePonderacionMutation } from "@/redux/services/ponderacionesApi";
 import { useGetCiclosQuery } from "@/redux/services/ciclosApi";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -58,10 +59,8 @@ const FormNuevoPonderacion = () => {
       }).unwrap();
 
       if (response) {
-        setMessage("Ponderacion creada correctamente");
-        setTimeout(() => {
-          router.push("/dashboard/ponderaciones");
-        }, 1500);
+        toast.success("Ponderacion creada correctamente");
+        router.push("/dashboard/ponderaciones");
       } else {
         setMessage("Error al crear la ponderacion");
       }

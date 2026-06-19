@@ -43,7 +43,7 @@ const FormAgregarNota = ({ alumnoId, onNotaAgregada, onCancelar }: FormAgregarNo
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!userLogin?.id) {
+    if (!userLogin?.userId) {
       setError("Usuario no autenticado");
       return;
     }
@@ -74,10 +74,10 @@ const FormAgregarNota = ({ alumnoId, onNotaAgregada, onCancelar }: FormAgregarNo
         materiaId,
         bimestre: parseInt(bimestre),
         valor: notaNum,
-        docenteId: userLogin.id
+        docenteId: String(userLogin.userId)
       }).unwrap();
 
-      if (result.action === "updated") {
+      if (result && (result as unknown as Record<string, string>).action === "updated") {
         toast.success("Nota actualizada correctamente");
       } else {
         toast.success("Nota creada correctamente");
@@ -143,8 +143,8 @@ const FormAgregarNota = ({ alumnoId, onNotaAgregada, onCancelar }: FormAgregarNo
               </SelectTrigger>
               <SelectContent>
                 {asignaturasData?.data?.map((asignatura) => (
-                  <SelectItem key={materia.id} value={materia.id}>
-                    {materia.nombre}
+                  <SelectItem key={String(asignatura.id)} value={String(asignatura.id)}>
+                    {asignatura.nombre}
                   </SelectItem>
                 ))}
               </SelectContent>

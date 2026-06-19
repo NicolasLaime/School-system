@@ -1,30 +1,40 @@
 "use client"
 
 import React from 'react'
-import { DataTable } from './data-table'
+import { DataTableEnhanced } from '@/components/shared/DataTableEnhanced'
 import { getColumns } from './columns'
-import { Loader2 } from 'lucide-react'
 import { useGetAsignaturasConDocentesQuery } from '@/redux/services/asignatura.Api'
-import { DocenteAsignado } from '../../../../types/materia.types'
+import Link from 'next/link'
+import { Button } from '@/components/ui/button'
 
 const MainAllClases = () => {
   const { data, isLoading, isError } = useGetAsignaturasConDocentesQuery()
 
-  if (isLoading)
-    return (
-      <section className="container mx-auto py-10">
-        <Loader2 className="text-primary mx-auto mb-5 h-48 w-48 animate-spin" />
-      </section>
-    );
   if (isError) return <p>Error al cargar las clases.</p>;
 
-  const rows: DocenteAsignado[] =
-    data?.data?.flatMap((asignatura) => asignatura.docentes ?? []) ?? []
+  const rows = data?.data?.flatMap((asignatura) => asignatura.docentes ?? []) ?? []
 
   return (
-    <div className="container mx-auto px-5 py-10 w-screen">
-      <DataTable columns={getColumns()} data={rows} />
-    </div>
+    <DataTableEnhanced
+      columns={getColumns()}
+      data={rows}
+      isLoading={isLoading}
+      searchPlaceholder="Buscar clases..."
+      globalSearch={true}
+      emptyStateProps={{
+        title: "No hay clases registradas",
+        description: "Cree una nueva clase para comenzar.",
+      }}
+      exportConfig={{
+        filename: "clases",
+        columns: ["id", "asignaturaNombre", "seccionNombre", "gradoNombre"],
+      }}
+      primaryAction={
+        <Link href="/dashboard/clases/nuevo">
+          <Button>Nueva Clase</Button>
+        </Link>
+      }
+    />
   )
 }
 

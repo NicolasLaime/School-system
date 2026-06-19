@@ -1,6 +1,6 @@
 "use client"
 import FormEditarTutor from '@/components/tutores/formEditarTutor'
-import { BreadcrumbWithCustomSeparator } from '@/components/ui/breadcrumbSeparator'
+import { PageHeader } from "@/components/layout/PageHeader"
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useGetTutorByIdQuery } from '@/redux/services/tutoresApi'
 import { Loader2 } from 'lucide-react'
@@ -31,11 +31,7 @@ const Page = () => {
 
   return (
     <section className="container mx-auto py-10 px-5">
-      <BreadcrumbWithCustomSeparator
-        href="/dashboard/tutores"
-        label="Tutores"
-        page="Editar tutor"
-      />
+      <PageHeader title="Detalle del Tutor" breadcrumbs={[{ label: "Tutores", href: "/dashboard/tutores" }, { label: "Detalle" }]} />
       <section className="container mx-auto py-10 px-5 w-200">
         <Card>
           <CardHeader>

@@ -1,4 +1,5 @@
 "use client";
+import { toast } from "sonner";
 import { useCreateNotaMutation } from "@/redux/services/notasApi";
 import { useGetAsignaturasByCodigoQuery } from "@/redux/services/asignatura.Api";
 import { useGetAlumnosPorCodigoQuery } from "@/redux/services/alumnosApi";
@@ -45,7 +46,7 @@ const formNotaSchema = z.object({
 const FormNuevaNota = () => {
   const router = useRouter();
   const userLogin = useAppSelector(selectUserLogin);
-  const [mensaje, setMessage] = useState("");
+  const [mensaje, _setMessage] = useState(""); // eslint-disable-line @typescript-eslint/no-unused-vars
   const [error, setError] = useState("");
   const [createNota, { isLoading }] = useCreateNotaMutation();
   const { data: ponderacionesData, isLoading: isLoadingPonderaciones } = useGetPonderacionesQuery();
@@ -126,10 +127,8 @@ const FormNuevaNota = () => {
         docenteId: Number(values.docenteId),
       }).unwrap();
       if (response) {
-        setMessage("Nota creada correctamente");
-        setTimeout(() => {
-          router.push("/dashboard/notas");
-        }, 1500);
+        toast.success("Nota creada correctamente");
+        router.push("/dashboard/notas");
       } else {
         setError("Error al crear la nota");
       }

@@ -1,4 +1,5 @@
 "use client";
+import { toast } from "sonner";
 import { useCreateAsistenciaAlumnoMutation, useGetAsistenciasAlumnoBySeccionQuery } from "@/redux/services/asistenciasApi";
 import { useGetSeccionesQuery } from "@/redux/services/seccionesApi";
 import { useGetAlumnosPorSeccionQuery } from "@/redux/services/alumnosApi";
@@ -113,10 +114,8 @@ const FormAsistenciaAlumno = () => {
       );
 
       await Promise.all(promises);
-      setMessage("Asistencias registradas correctamente");
-      setTimeout(() => {
-        router.push("/dashboard/asistencias");
-      }, 1500);
+      toast.success("Asistencias registradas correctamente");
+      router.push("/dashboard/asistencias");
     } catch (error) {
       console.error("Error al registrar asistencias:", error);
       const errorMessage =

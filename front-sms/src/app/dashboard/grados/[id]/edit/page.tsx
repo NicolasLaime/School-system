@@ -1,5 +1,5 @@
 "use client"
-import { BreadcrumbWithCustomSeparator } from '@/components/ui/breadcrumbSeparator'
+import { PageHeader } from "@/components/layout/PageHeader"
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import FormEditGrado from '@/components/grados/formEditGrado'
@@ -47,11 +47,7 @@ const Page = () => {
   
   return (
     <section className="container mx-auto px-10 py-5">
-      <BreadcrumbWithCustomSeparator
-        href="/dashboard/grados"
-        label="grados"
-        page="Editar grado"
-      />
+      <PageHeader title="Editar Grado" breadcrumbs={[{ label: "Grados", href: "/dashboard/grados" }, { label: "Editar" }]} />
       <section className="container mx-auto py-10 px-5">
       <Card className='shadow-md'>
         <CardHeader>

@@ -1,15 +1,24 @@
-
-
+import { PageHeader } from "@/components/layout/PageHeader"
+import Link from "next/link"
 import MainAllTutores from '@/components/tutores/allTutores/main'
-import { BreadcrumbWithCustomSeparator } from '@/components/ui/breadcrumbSeparator'
-import React from 'react'
 
 const page = () => {
   return (
-    <section className="container mx-auto px-10 py-5">
-        <BreadcrumbWithCustomSeparator href="/dashboard/tutores" label="Tutores" page="Listado de Tutores" />
-            <MainAllTutores />
-    </section>
+    <>
+      <PageHeader
+        title="Tutores"
+        breadcrumbs={[{ label: "Tutores" }]}
+        actions={
+          <Link
+            href="/dashboard/tutores/nuevo"
+            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow hover:bg-primary/90"
+          >
+            Nuevo
+          </Link>
+        }
+      />
+      <MainAllTutores />
+    </>
   )
 }
 

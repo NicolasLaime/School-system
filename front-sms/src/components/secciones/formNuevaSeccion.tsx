@@ -1,4 +1,5 @@
 "use client";
+import { toast } from "sonner";
 import {
   useCreateSeccionMutation,
 } from "@/redux/services/seccionesApi";
@@ -61,10 +62,8 @@ const FormNuevaSeccion = () => {
         ciclo_lectivo: values.ciclo_lectivo,
       }).unwrap();
       if (response) {
-        setMessage("Seccion creada correctamente");
-        setTimeout(() => {
-          router.push("/dashboard/secciones");
-        }, 1500);
+        toast.success("Seccion creada correctamente");
+        router.push("/dashboard/secciones");
       } else {
         setMessage("Error al crear la seccion");
       }

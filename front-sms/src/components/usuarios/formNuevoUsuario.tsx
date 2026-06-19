@@ -1,4 +1,5 @@
 "use client";
+import { toast } from "sonner";
 import {
   useCreateUserMutation,
   useGetUsersQuery,
@@ -30,7 +31,7 @@ import {
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { AlertCircle, CheckCircle2, Loader2, MailCheck, MailWarning } from "lucide-react";
-import { selectUserLogin, selectUserToken } from "@/redux/features/userSlice";
+import { selectUserLogin } from "@/redux/features/userSlice";
 
 import { useSelector } from "react-redux";
 import { User } from "../../../types/Usuario.type";
@@ -57,16 +58,15 @@ const formUserSchema = z.object({
 const CreateUserForm = () => {
 
   const userLogin = useSelector(selectUserLogin);
-  const idUserLogin = userLogin?.id
+  const idUserLogin = userLogin?.userId
 
-  const token = useSelector(selectUserToken);
   const router = useRouter();
   const [mensaje, setMessage] = useState("");
   const [error, setError] = useState("");
   const [MailMessage, setErrorMailMessage] = useState("");
   const [verifyMail, setVerifyMail] = useState(false);
   const [createUser, { isLoading }] = useCreateUserMutation();
-  const { data, isLoading: isLoadingUsers } = useGetUsersQuery(token);
+  const { data, isLoading: isLoadingUsers } = useGetUsersQuery();
 
   const form = useForm<z.infer<typeof formUserSchema>>({
     resolver: zodResolver(formUserSchema),
@@ -97,13 +97,10 @@ const CreateUserForm = () => {
     
    console.log("🚀 Creando usuario...", userData,idUserLogin);
     try {
-       const response = await createUser({data:userData, userLoginId:idUserLogin}).unwrap();
+       const response = await createUser({data:userData, userLoginId: idUserLogin ?? 0}).unwrap();
       if (response) {
-        setMessage("Usuario creado correctamente");
-
-        setTimeout(() => {
-          router.push("/dashboard/usuarios");
-        }, 1500);
+        toast.success("Usuario creado correctamente");
+        router.push("/dashboard/usuarios");
       } else {
         setMessage("Error al crear el usuario");
       }

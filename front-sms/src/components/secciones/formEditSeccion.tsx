@@ -74,7 +74,7 @@ const FormEditSeccion = ({ dataSeccion }: Props) => {
 
         try {
             const response = await updateSeccionApi({
-                id: dataSeccion.id,
+                id: String(dataSeccion.id),
                 data: {
                     nombre: values.nombre,
                     grado_id: values.grado_id,
@@ -158,7 +158,7 @@ const FormEditSeccion = ({ dataSeccion }: Props) => {
                                         </FormControl>
                                         <SelectContent>
                                             {gradosData?.data?.map((grado) => (
-                                                <SelectItem key={grado.id} value={grado.id}>
+                                                <SelectItem key={grado.id} value={String(grado.id)}>
                                                     {grado.nombre}
                                                 </SelectItem>
                                             ))}

@@ -1,11 +1,11 @@
-import { BreadcrumbWithCustomSeparator } from '@/components/ui/breadcrumbSeparator'
 import FormNuevoCiclo from '@/components/ciclos/formNuevoCiclo'
+import { PageHeader } from "@/components/layout/PageHeader"
 import React from 'react'
 
 const page = () => {
   return (
     <section className="container mx-auto px-10 py-5">
-        <BreadcrumbWithCustomSeparator href="/dashboard/ciclos" label="Ciclos" page="Crear nuevo ciclo" />
+        <PageHeader title="Nuevo Ciclo Lectivo" breadcrumbs={[{ label: "Ciclos", href: "/dashboard/ciclos" }, { label: "Nuevo" }]} />
         <div className="flex flex-col gap-4 px-5 py-8 w-[80vw] mx-auto">
             <FormNuevoCiclo />
         </div>

@@ -91,7 +91,7 @@ const FormEditUsuario = ({ dataUser, userPerfil }: Props) => {
 
         try {
             const response = await updateProductApi({
-                id: dataUser.id,
+                id: String(dataUser.id),
                 data: values
             }).unwrap();
             

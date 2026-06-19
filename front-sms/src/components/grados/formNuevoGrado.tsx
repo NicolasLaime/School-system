@@ -1,4 +1,5 @@
 "use client";
+import { toast } from "sonner";
 import {
   useCreateGradoMutation,
 } from "@/redux/services/gradosApi";
@@ -54,10 +55,8 @@ const FormNuevoGrado = () => {
     try {
       const response = await createGrado(values).unwrap();
       if (response) {
-        setMessage("Grado creado correctamente");
-        setTimeout(() => {
-          router.push("/dashboard/grados");
-        }, 1500);
+        toast.success("Grado creado correctamente");
+        router.push("/dashboard/grados");
       } else {
         setMessage("Error al crear el grado");
       }

@@ -1,4 +1,5 @@
 "use client";
+import { toast } from "sonner";
 import React, { useState, useEffect } from "react";
 import { Ponderacion } from "../../../types/ponderacion.type";
 import z from "zod";
@@ -84,10 +85,8 @@ const FormEditPonderacion = ({ dataPonderacion }: Props) => {
       }).unwrap();
 
       if (response) {
-        setMensaje("Ponderacion actualizada correctamente");
-        setTimeout(() => {
-          router.push("/dashboard/ponderaciones");
-        }, 1500);
+        toast.success("Ponderacion actualizada correctamente");
+        router.push("/dashboard/ponderaciones");
       } else {
         setError("Error al actualizar la ponderacion");
       }

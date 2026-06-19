@@ -1,4 +1,5 @@
 "use client"
+import { toast } from "sonner";
 import { useCreateTutorMutation } from '@/redux/services/tutoresApi';
 import { useLazyGetAlumnosPorCodigoQuery } from '@/redux/services/alumnosApi';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -127,12 +128,10 @@ const FormNuevoTutor = () => {
       const response = await createTutor(data).unwrap();
 
       if (response.success) {
-        setMensaje(response.message || "Tutor creado correctamente");
+        toast.success(response.message || "Tutor creado correctamente");
         form.reset();
         setAlumnosSeleccionados([]);
-        setTimeout(() => {
-          router.push("/dashboard/tutores");
-        }, 3000);
+        router.push("/dashboard/tutores");
       } else {
         setError(response.message || "Error al crear el tutor");
       }

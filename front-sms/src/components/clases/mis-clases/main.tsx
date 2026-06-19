@@ -32,7 +32,8 @@ const MainMisClases = () => {
 
   return (
     <div className="container mx-auto px-5 py-10 w-screen">
-      <DataTable columns={getColumns()} data={clases!} />
+      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+      <DataTable columns={getColumns()} data={clases as any} />
     </div>
   )
 }

@@ -1,11 +1,12 @@
 "use client"
-import { BreadcrumbWithCustomSeparator } from '@/components/ui/breadcrumbSeparator'
+import { PageHeader } from "@/components/layout/PageHeader"
 import { useParams } from 'next/navigation'
 import React from 'react'
 import NotFound from './not-found'
 import { useGetAsignaturaByIdQuery } from '@/redux/services/asignatura.Api'
 import { Loader2 } from 'lucide-react'
 import FormEditarAsignatura from '@/components/materias/formEditarMateria'
+import type { AsignaturaEdit } from '../../../../../../types/materia.types'
 
 const Page = () => {
 
@@ -41,9 +42,9 @@ const Page = () => {
 
   return (
     <div className="container mx-auto py-10 px-5">
-        <BreadcrumbWithCustomSeparator href="/dashboard/materias" label="asignaturas" page="Editar asignatura" />
+        <PageHeader title="Editar Materia" breadcrumbs={[{ label: "Materias", href: "/dashboard/materias" }, { label: "Editar" }]} />
         <div className="container mx-auto py-10 px-5">
-            <FormEditarAsignatura dataAsignatura={dataAsignatura} />
+            <FormEditarAsignatura dataAsignatura={dataAsignatura as unknown as AsignaturaEdit} />
         </div>
     </div>
   )

@@ -1,5 +1,5 @@
 "use client"
-import { BreadcrumbWithCustomSeparator } from '@/components/ui/breadcrumbSeparator'
+import { PageHeader } from "@/components/layout/PageHeader"
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import FormEditUsuario from '@/components/usuarios/formEditUsuario'
@@ -52,16 +52,12 @@ const Page = () => {
 
   console.log("userLogin", userLogin)
 
-  const userPerfil = userLogin?.rol
+  const userPerfil = userLogin?.role
 
   
   return (
     <section className="container mx-auto px-10 py-5">
-      <BreadcrumbWithCustomSeparator
-        href="/dashboard/usuarios"
-        label="usuarios"
-        page="Editar usuarios"
-      />
+      <PageHeader title="Editar Usuario" breadcrumbs={[{ label: "Usuarios", href: "/dashboard/usuarios" }, { label: "Editar" }]} />
       <section className="container mx-auto py-10 px-5">
       <Card className='shadow-md'>
         <CardHeader>

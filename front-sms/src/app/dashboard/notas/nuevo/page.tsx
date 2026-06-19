@@ -1,11 +1,11 @@
-import { BreadcrumbWithCustomSeparator } from '@/components/ui/breadcrumbSeparator'
 import FormNuevaNota from '@/components/notas/formNuevaNota'
+import { PageHeader } from "@/components/layout/PageHeader"
 import React from 'react'
 
 const Page = () => {
   return (
     <section className="container mx-auto px-10 py-5">
-      <BreadcrumbWithCustomSeparator href="/dashboard/notas" label="Notas" page="Crear nueva nota" />
+      <PageHeader title="Nueva Nota" breadcrumbs={[{ label: "Notas", href: "/dashboard/notas" }, { label: "Nueva" }]} />
       <div className="flex flex-col gap-4 px-5 py-8 w-[80vw] mx-auto">
         <FormNuevaNota />
       </div>

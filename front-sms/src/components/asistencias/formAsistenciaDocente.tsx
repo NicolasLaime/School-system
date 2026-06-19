@@ -1,4 +1,5 @@
 "use client";
+import { toast } from "sonner";
 import { useCreateAsistenciaDocenteMutation, useGetAsistenciasDocenteQuery } from "@/redux/services/asistenciasApi";
 import { useGetUsuariosByRolQuery } from "@/redux/services/authApi";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -96,10 +97,8 @@ const FormAsistenciaDocente = () => {
       );
 
       await Promise.all(promises);
-      setMessage("Asistencias registradas correctamente");
-      setTimeout(() => {
-        router.push("/dashboard/asistencias");
-      }, 1500);
+      toast.success("Asistencias registradas correctamente");
+      router.push("/dashboard/asistencias");
     } catch (error) {
       console.error("Error al registrar asistencias:", error);
       const errorMessage =
